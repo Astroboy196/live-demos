@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaaS Projekt-Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a28;
+    --surface3: #22223a;
+    --border: #2a2a42;
+    --gold: #C6A962;
+    --gold-dim: #9a8345;
+    --gold-glow: rgba(198,169,98,0.15);
+    --text: #e8e4dc;
+    --text-dim: #8888a0;
+    --green: #34d399;
+    --green-dim: rgba(52,211,153,0.15);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.15);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96,165,250,0.15);
+    --orange: #fbbf24;
+    --orange-dim: rgba(251,191,36,0.15);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.15);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .app { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    overflow-y: auto;
+  }
+  .sidebar-logo {
+    padding: 0 24px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .sidebar-logo h1 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: -0.5px;
+  }
+  .sidebar-logo span {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active {
+    background: var(--gold-glow);
+    color: var(--gold);
+    border-left-color: var(--gold);
+  }
+  .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+  .nav-section {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    padding: 20px 24px 8px;
+    font-weight: 600;
+  }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+  }
+  .sidebar-footer p {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* Main */
+  .main { margin-left: 260px; flex: 1; padding: 32px; min-height: 100vh; }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+  }
+  .page-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+  .page-subtitle { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Cards */
+  .grid { display: grid; gap: 16px; }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-1-2 { grid-template-columns: 1fr 2fr; }
+  .grid-2-1 { grid-template-columns: 2fr 1fr; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s;
+  }
+  .card:hover { border-color: var(--gold-dim); }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  .card-icon { font-size: 20px; }
+
+  /* KPI Cards */
+  .kpi-value {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .kpi-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .kpi-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 8px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .kpi-change.up { color: var(--green); background: var(--green-dim); }
+  .kpi-change.info { color: var(--blue); background: var(--blue-dim); }
+
+  /* Phase Cards */
+  .phase-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .phase-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+  .phase-card.done::before { background: var(--green); }
+  .phase-card.active::before { background: var(--gold); }
+  .phase-card.pending::before { background: var(--border); }
+
+  .phase-number {
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--surface3);
+    position: absolute;
+    right: 16px;
+    top: 8px;
+    line-height: 1;
+  }
+  .phase-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .phase-status.done { color: var(--green); background: var(--green-dim); }
+  .phase-status.active { color: var(--gold); background: var(--gold-glow); }
+  .phase-status.pending { color: var(--text-dim); background: var(--surface3); }
+  .phase-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .phase-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-green { color: var(--green); background: var(--green-dim); }
+  .tag-red { color: var(--red); background: var(--red-dim); }
+  .tag-orange { color: var(--orange); background: var(--orange-dim); }
+  .tag-blue { color: var(--blue); background: var(--blue-dim); }
+  .tag-purple { color: var(--purple); background: var(--purple-dim); }
+  .tag-gold { color: var(--gold); background: var(--gold-glow); }
+
+  /* Progress Bar */
+  .progress-bar {
+    height: 6px;
+    background: var(--surface3);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+
+  /* USP List */
+  .usp-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .usp-item:last-child { border-bottom: none; }
+  .usp-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gold-glow);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .usp-text { font-size: 13px; font-weight: 600; }
+  .usp-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  /* Tier Cards */
+  .tier-card { text-align: center; position: relative; }
+  .tier-card.recommended { border-color: var(--gold); }
+  .tier-card.recommended::after {
+    content: 'EMPFOHLEN';
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--bg);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 12px;
+    border-radius: 0 0 6px 6px;
+    letter-spacing: 1px;
+  }
+  .tier-name {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .tier-price { font-size: 36px; font-weight: 800; color: var(--gold); }
+  .tier-period { font-size: 12px; color: var(--text-dim); }
+  .tier-features { list-style: none; margin-top: 16px; text-align: left; }
+  .tier-features li {
+    font-size: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tier-features li:last-child { border-bottom: none; }
+  .check { color: var(--green); }
+  .cross { color: var(--text-dim); opacity: 0.3; }
+
+  /* Donut chart */
+  .donut-wrap { display: flex; align-items: center; gap: 20px; }
+  .donut { position: relative; width: 120px; height: 120px; }
+  .donut svg { transform: rotate(-90deg); }
+  .donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .donut-val { font-size: 20px; font-weight: 800; }
+  .donut-label { font-size: 10px; color: var(--text-dim); }
+  .legend { display: flex; flex-direction: column; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* Bar chart */
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .bar-label { font-size: 12px; width: 80px; text-align: right; color: var(--text-dim); flex-shrink: 0; }
+  .bar-track { flex: 1; height: 24px; background: var(--surface3); border-radius: 4px; overflow: hidden; position: relative; }
+  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 700; transition: width 1s ease; }
+  .bar-value { font-size: 12px; font-weight: 700; width: 80px; flex-shrink: 0; }
+
+  /* Timeline */
+  .timeline-item {
+    display: flex;
+    gap: 16px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+  .timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 36px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .timeline-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .timeline-content { flex: 1; }
+  .timeline-title { font-size: 14px; font-weight: 600; }
+  .timeline-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .timeline-tasks {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .timeline-task {
+    font-size: 11px;
+    padding: 2px 8px;
+    background: var(--surface3);
+    border-radius: 4px;
+    color: var(--text-dim);
+  }
+
+  /* Risk meter */
+  .risk-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .risk-row:last-child { border-bottom: none; }
+  .risk-meter {
+    width: 60px;
+    height: 8px;
+    background: var(--surface3);
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .risk-fill { height: 100%; border-radius: 4px; }
+  .risk-label { font-size: 12px; font-weight: 600; flex: 1; }
+  .risk-pct { font-size: 12px; font-weight: 700; width: 40px; text-align: right; flex-shrink: 0; }
+
+  /* Skill Cards */
+  .skill-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .skill-card:hover { border-color: var(--gold-dim); transform: translateY(-2px); }
+  .skill-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gold);
+  }
+  .skill-card.dev::before { background: var(--blue); }
+  .skill-icon { font-size: 32px; margin-bottom: 12px; }
+  .skill-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; font-family: monospace; color: var(--gold); }
+  .skill-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px; }
+  .skill-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* Activity timeline mini */
+  .activity-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-date {
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 700;
+    width: 50px;
+    flex-shrink: 0;
+  }
+  .activity-text { font-size: 13px; color: var(--text); }
+
+  .section-gap { margin-top: 24px; }
+
+  @media (max-width: 1200px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-1-2, .grid-2-1 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 16px; }
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const { useState } = React;
+
+// ── Data ──
+const phases = [
+  { num: 1, name: 'Research', desc: 'Markt, Wettbewerb, Business-Strategie', status: 'done', docs: ['Marktanalyse.md', 'Business-Strategie.md'] },
+  { num: 2, name: 'Produkt', desc: 'Features, Tiers, Dashboard, Architektur', status: 'done', docs: ['Produktkonzept.md'] },
+  { num: 3, name: 'Branding', desc: 'Name, Logo, Identität, Tonalität', status: 'active', docs: [] },
+  { num: 4, name: 'Landing Page', desc: 'Conversion-optimiert + Waitlist', status: 'pending', docs: [] },
+  { num: 5, name: 'Tech / Build', desc: 'MVP: Dashboard, CRM, Templates', status: 'pending', docs: [] },
+  { num: 6, name: 'Launch', desc: 'Erste Kunden, Go-to-Market', status: 'pending', docs: [] },
+];
+
+const usps = [
+  { title: 'Rich-Media-Autorespond', sub: 'HTML + Video + 360° + PDF — einzigartig am Markt' },
+  { title: 'CasaOne-nativ', sub: 'Kein deutscher Wettbewerber hat diese Integration' },
+  { title: 'Zero-Config', sub: 'In 10 Minuten live vs. Tage bei CRM-Systemen' },
+  { title: 'Intelligentes Follow-Up', sub: '48h Auto-Follow-Up — kein Wettbewerber bietet das' },
+  { title: 'Made for Switzerland', sub: 'DE/FR/IT, DSG-konform, Schweizer Markt-Know-how' },
+];
+
+const competitors = [
+  { name: 'CasaOne', auto: 'Minimal', html: false, video: false, followup: false },
+  { name: 'onOffice', auto: 'Basis', html: '~', video: false, followup: '~' },
+  { name: 'Propstack', auto: 'Basis', html: '~', video: false, followup: '~' },
+  { name: 'FLOWFACT', auto: 'Basis', html: false, video: false, followup: false },
+  { name: 'Immomig', auto: 'Kaum', html: false, video: false, followup: false },
+  { name: 'Unser Produkt', auto: 'Premium', html: true, video: true, followup: true, highlight: true },
+];
+
+const risks = [
+  { label: 'API-Abhängigkeit Portale', pct: 60, color: 'var(--red)' },
+  { label: 'Langsame Adoption', pct: 50, color: 'var(--orange)' },
+  { label: 'Portale bauen selbst', pct: 40, color: 'var(--orange)' },
+  { label: 'CasaSoft baut Feature', pct: 35, color: 'var(--gold)' },
+  { label: 'Markt zu klein (nur CH)', pct: 30, color: 'var(--green)' },
+];
+
+const roadmap = [
+  {
+    phase: 'MVP', months: 'Monat 1–3', icon: '🚀', color: 'var(--green)',
+    goal: '10 zahlende Kunden',
+    tasks: ['Portal-Erkennung', 'Objekt-DB CRUD', 'Auto-Response Engine', 'Gmail-Integration', 'Dashboard KPIs', 'Landing Page + Stripe'],
+  },
+  {
+    phase: 'Product-Market Fit', months: 'Monat 4–6', icon: '📈', color: 'var(--blue)',
+    goal: '40 Kunden, Churn <3%',
+    tasks: ['Follow-Up Sequenzen', 'Template-Editor', 'Outlook', 'Multi-User', 'Analytics', 'CasaOne API'],
+  },
+  {
+    phase: 'Scale', months: 'Monat 7–12', icon: '⚡', color: 'var(--purple)',
+    goal: '80+ Kunden, ARR CHF 250K+',
+    tasks: ['Lead Scoring', 'Besichtigungs-Buchung', 'DE/FR/EN', 'A/B Testing', 'API & Webhooks'],
+  },
+  {
+    phase: 'Enterprise', months: 'Monat 12+', icon: '🏢', color: 'var(--gold)',
+    goal: 'DACH-Expansion',
+    tasks: ['KI-Personalisierung', 'WhatsApp', 'CRM-Integrationen', 'Portal-ROI', 'SSO', 'White-Label'],
+  },
+];
+
+const screens = [
+  { name: 'Command Center', desc: 'KPIs, letzte Anfragen, Status', icon: '📊' },
+  { name: 'Objekt-Management', desc: 'CRUD, Medien, Berater, Vorschau', icon: '🏠' },
+  { name: 'Template-Editor', desc: 'Drag & Drop, Platzhalter, Preview', icon: '🎨' },
+  { name: 'Anfragen-Center', desc: 'Inbox-Style, Filter, Timeline', icon: '📬' },
+  { name: 'Analytics', desc: 'Charts, Drill-Down, Export', icon: '📈' },
+  { name: 'Einstellungen', desc: 'Firma, E-Mail, Team, Billing', icon: '⚙️' },
+];
+
+const techStack = [
+  { area: 'Frontend', tech: 'Next.js 14+ · shadcn/ui · Tailwind', color: 'var(--blue)' },
+  { area: 'Backend', tech: 'tRPC · BullMQ · node-cron', color: 'var(--green)' },
+  { area: 'Auth', tech: 'Clerk (B2B-optimiert)', color: 'var(--purple)' },
+  { area: 'Datenbank', tech: 'PostgreSQL via Supabase · Drizzle', color: 'var(--orange)' },
+  { area: 'E-Mail', tech: 'Gmail API / Microsoft Graph', color: 'var(--gold)' },
+  { area: 'Hosting', tech: 'Vercel + Railway · Cloudflare R2', color: 'var(--red)' },
+];
+
+const skillsData = [
+  { icon: '🔍', name: 'immo-research', desc: 'Marktforschung & Wettbewerbsanalyse. Analysiert den DACH-Immobilienmarkt, identifiziert Wettbewerber und validiert die Marktlücke.', status: 'Aktiv', category: 'Research', example: '/immo-research "Analysiere Wettbewerber im Schweizer Autoresponder-Markt"' },
+  { icon: '📦', name: 'immo-product', desc: 'Features & PRDs erstellen. Definiert Produktkonzepte, Feature-Prioritäten und erstellt detaillierte Product Requirement Documents.', status: 'Aktiv', category: 'Product', example: '/immo-product "Erstelle PRD für Follow-Up Automation"' },
+  { icon: '🎨', name: 'immo-branding', desc: 'Name, Logo & Identität entwickeln. Kreiert die komplette Markenidentität inkl. Farbpalette, Tonalität und Styleguide.', status: 'Aktiv', category: 'Marketing', example: '/immo-branding "Entwickle 5 Namensvorschläge mit Rationale"' },
+  { icon: '🌐', name: 'immo-landing', desc: 'Landing Page erstellen. Baut conversion-optimierte Landing Pages mit Waitlist-Funktion und A/B-Testing-Varianten.', status: 'Aktiv', category: 'Marketing', example: '/immo-landing "Erstelle Hero-Section mit Waitlist"' },
+  { icon: '⚙️', name: 'immo-build', desc: 'Tech & MVP entwickeln. Setzt die technische Architektur um, baut MVP-Features und implementiert Integrationen.', status: 'Aktiv', category: 'Tech', example: '/immo-build "Implementiere Portal-Parsing für Homegate"' },
+  { icon: '🚀', name: 'immo-gtm', desc: 'Go-to-Market & Sales Strategie. Plant Launch-Kampagnen, definiert Sales-Prozesse und erstellt Outreach-Templates.', status: 'Aktiv', category: 'Marketing', example: '/immo-gtm "Erstelle Cold-Outreach Sequenz für Makler"' },
+  { icon: '📊', name: 'immo-analytics', desc: 'KPIs & Tracking einrichten. Definiert Metriken, baut Dashboards und implementiert Event-Tracking für alle Features.', status: 'Aktiv', category: 'Operations', example: '/immo-analytics "Definiere KPIs für MVP-Phase"' },
+  { icon: '📋', name: 'immo-reporting', desc: 'Anfragen-Zusammenfassung generieren. Erstellt tägliche/wöchentliche Reports über Anfragen, Antwortzeiten und Conversion.', status: 'Aktiv', category: 'Operations', example: '/immo-reporting "Generiere Wochenbericht"' },
+  { icon: '🖥️', name: 'immo-dashboard', desc: 'Dashboard verwalten & erweitern. Aktualisiert das Projekt-Dashboard, fügt neue Seiten hinzu und pflegt den Projektstatus.', status: 'Aktiv', category: 'Tech', example: '/immo-dashboard "Füge Reporting-Seite hinzu"' },
+];
+
+// ── Donut Component ──
+function Donut({ segments, centerVal, centerLabel }) {
+  const total = segments.reduce((s, x) => s + x.value, 0);
+  let offset = 0;
+  const r = 50, c = 2 * Math.PI * r;
+  return (
+    <div className="donut-wrap">
+      <div className="donut">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          {segments.map((seg, i) => {
+            const dash = (seg.value / total) * c;
+            const gap = c - dash;
+            const o = offset;
+            offset += dash;
+            return <circle key={i} cx="60" cy="60" r={r} fill="none" stroke={seg.color} strokeWidth="12" strokeDasharray={`${dash} ${gap}`} strokeDashoffset={-o} />;
+          })}
+        </svg>
+        <div className="donut-center">
+          <div className="donut-val">{centerVal}</div>
+          <div className="donut-label">{centerLabel}</div>
+        </div>
+      </div>
+      <div className="legend">
+        {segments.map((seg, i) => (
+          <div key={i} className="legend-item">
+            <div className="legend-dot" style={{ background: seg.color }}></div>
+            <span>{seg.label}: <strong>{seg.value}%</strong></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Nav Pages ──
+const pages = [
+  { id: 'overview', icon: '📊', label: 'Übersicht' },
+  { id: 'reporting', icon: '📋', label: 'Reporting' },
+  { id: 'skills', icon: '🛠️', label: 'Skills' },
+  { id: 'market', icon: '🔍', label: 'Marktanalyse' },
+  { id: 'product', icon: '📦', label: 'Produkt' },
+  { id: 'pricing', icon: '💰', label: 'Pricing & Revenue' },
+  { id: 'roadmap', icon: '🗺️', label: 'Roadmap' },
+  { id: 'tech', icon: '⚙️', label: 'Tech-Stack' },
+  { id: 'risks', icon: '⚠️', label: 'Risiken' },
+];
+
+// ── OVERVIEW PAGE ──
+function OverviewPage() {
+  return (
+    <>
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Projekt-Übersicht</h2>
+          <p className="page-subtitle">Immobilien-Autoresponder</p>
+        </div>
+        <span className="header-badge" style={{ background: 'var(--gold-glow)', color: 'var(--gold)' }}>Phase 3 — Branding</span>
+      </div>
+
+      {/* KPI Row */}
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+        <div className="card">
+          <div className="card-header"><span className="card-title">TAM (DACH)</span><span className="card-icon">🌍</span></div>
+          <div className="kpi-value" style={{ color: 'var(--gold)' }}>CHF 24M</div>
+          <div className="kpi-label">Total Addressable Market</div>
+        </div>
+        <div className="card">
+          <div className="card-header"><span className="card-title">SOM 3 Jahre</span><span className="card-icon">🎯</span></div>
+          <div className="kpi-value" style={{ color: 'var(--green)' }}>CHF 2M</div>
+          <div className="kpi-label">Realistic ARR Target</div>
+          <span className="kpi-change up">Stretch CHF 5M</span>
+        </div>
+        <div className="card">
+          <div className="card-header"><span className="card-title">Break-Even</span><span className="card-icon">⚖️</span></div>
+          <div className="kpi-value" style={{ color: 'var(--blue)' }}>43</div>
+          <div className="kpi-label">Kunden (Monat 8–10)</div>
+        </div>
+        <div className="card">
+          <div className="card-header"><span className="card-title">LTV:CAC</span><span className="card-icon">💎</span></div>
+          <div className="kpi-value" style={{ color: 'var(--purple)' }}>20:1</div>
+          <div className="kpi-label">Exzellent (Ziel: >3:1)</div>
+          <span className="kpi-change up">Top-Tier SaaS</span>
+        </div>
+        <div className="card">
+          <div className="card-header"><span className="card-title">Skills</span><span className="card-icon">🛠️</span></div>
+          <div className="kpi-value" style={{ color: 'var(--gold)' }}>9/9</div>
+          <div className="kpi-label">Entwickelte Skills</div>
+          <span className="kpi-change up">Alle aktiv</span>
+        </div>
+      </div>
+
+      {/* Phases */}
+      <div className="section-gap">
+        <div className="grid grid-3" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+          {phases.map(p => (
+            <div key={p.num} className={`card phase-card ${p.status}`}>
+              <span className="phase-number">{p.num}</span>
+              <span className={`phase-status ${p.status}`}>
+                {p.status === 'done' ? '✓ Fertig' : p.status === 'active' ? '● Aktiv' : '○ Offen'}
+              </span>
+              <div className="phase-name">{p.name}</div>
+              <div className="phase-desc">{p.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Market Gap + USPs */}
+      <div className="grid grid-2 section-gap">
+        <div className="card" style={{ borderColor: 'var(--green)', background: 'linear-gradient(135deg, var(--surface) 0%, rgba(52,211,153,0.05) 100%)' }}>
+          <div className="card-header"><span className="card-title">Marktlücke bestätigt</span><span className="card-icon">✅</span></div>
+          <p style={{ fontSize: '16px', fontWeight: 700, lineHeight: 1.6, marginBottom: 16 }}>
+            Es gibt im DACH-Raum <span style={{ color: 'var(--green)' }}>keinen spezialisierten Autoresponder</span> für Immobilienanfragen als eigenständiges SaaS-Produkt.
+          </p>
+          <p style={{ fontSize: '13px', color: 'var(--text-dim)', lineHeight: 1.6 }}>
+            80% der verlorenen Deals sind durch einen intelligenten Autoresponder vermeidbar: langsame Antwort (35%), kein Follow-Up (25%), unprofessionelle Erstantwort (20%).
+          </p>
+        </div>
+        <div className="card">
+          <div className="card-header"><span className="card-title">5 USPs</span><span className="card-icon">💡</span></div>
+          {usps.map((u, i) => (
+            <div key={i} className="usp-item">
+              <div className="usp-num">{i + 1}</div>
+              <div>
+                <div className="usp-text">{u.title}</div>
+                <div className="usp-sub">{u.sub}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Letzte Aktivitäten + Revenue */}
+      <div className="grid grid-2 section-gap">
+        <div className="card">
+          <div className="card-header"><span className="card-title">Letzte Aktivitäten</span><span className="card-icon">🕐</span></div>
+          {[
+            { date: '16.03', text: 'Research Phase abgeschlossen', icon: '🔍' },
+            { date: '16.03', text: 'Produktkonzept erstellt', icon: '📦' },
+            { date: '16.03', text: 'Business-Strategie definiert', icon: '📈' },
+            { date: '16.03', text: 'Dashboard erstellt', icon: '🖥️' },
+            { date: '16.03', text: '9 Skills entwickelt', icon: '🛠️' },
+          ].map((a, i) => (
+            <div key={i} className="activity-item">
+              <span className="activity-date">{a.date}</span>
+              <span style={{ fontSize: 16 }}>{a.icon}</span>
+              <span className="activity-text">{a.text}</span>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div className="card-header"><span className="card-title">Revenue-Projektion</span><span className="card-icon">📈</span></div>
+          <div style={{ display: 'flex', gap: 0 }}>
+            {[
+              { year: 'Jahr 1', kunden: 80, mrr: '22.4K', arr: '269K', color: 'var(--blue)' },
+              { year: 'Jahr 2', kunden: 250, mrr: '80K', arr: '960K', color: 'var(--purple)' },
+              { year: 'Jahr 3', kunden: 500, mrr: '180K', arr: '2.16M', color: 'var(--gold)' },
+            ].map((y, i) => (
+              <div key={i} style={{ flex: 1, textAlign: 'center', padding: 16, borderRight: i < 2 ? '1px solid var(--border)' : 'none' }}>
+                <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>{y.year}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: y.color }}>CHF {y.arr}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 4 }}>ARR</div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
+                  <div><span style={{ fontSize: 15, fontWeight: 700 }}>{y.kunden}</span><br/><span style={{ fontSize: 10, color: 'var(--text-dim)' }}>Kunden</span></div>
+                  <div><span style={{ fontSize: 15, fontWeight: 700 }}>{y.mrr}</span><br/><span style={{ fontSize: 10, color: 'var(--text-dim)' }}>MRR</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── REPORTING PAGE ──
+function ReportingPage() {
+  const weekDays = [
+    { day: 'Mo', val: 8 },
+    { day: 'Di', val: 12 },
+    { day: 'Mi', val: 10 },
+    { day: 'Do', val: 14 },
+    { day: 'Fr', val: 11 },
+    { day: 'Sa', val: 7 },
+    { day: 'So', val: 5 },
+  ];
+  const maxDay = Math.max(...weekDays.map(d => d.val));
+
+  return (
+    <>
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Anfragen-Reporting</h2>
+          <p className="page-subtitle">Tages- und Wochen-Zusammenfassung aller Immobilien-Anfragen</p>
+        </div>
+        <span className="header-badge" style={{ background: 'var(--green-dim)', color: 'var(--green)' }}>Live-Vorschau</span>
+      </div>
+
+      {/* Tages- & Wochen-Zusammenfassung */}
+      <div className="grid grid-2">
+        <div className="card">
+          <div className="card-header"><span className="card-title">Tages-Zusammenfassung</span><span className="card-icon">📅</span></div>
+          <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 16 }}>16. März 2026</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--blue)' }}>12</div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Neue Anfragen</div>
+            </div>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--green)' }}>11 <span style={{ fontSize: 13, fontWeight: 600 }}>(92%)</span></div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Beantwortet</div>
+            </div>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--orange)' }}>4</div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Follow-Ups gesendet</div>
+            </div>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--red)' }}>1</div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Fehler</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 12, padding: 12, background: 'var(--gold-glow)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 20 }}>⚡</span>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--gold)' }}>2.3 Min</div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Durchschnittliche Antwortzeit</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-header"><span className="card-title">Wochen-Zusammenfassung</span><span className="card-icon">📊</span></div>
+          <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 16 }}>KW 12 — 10.–16. März 2026</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--blue)' }}>67</div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Anfragen diese Woche</div>
+            </div>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--green)' }}>63 <span style={{ fontSize: 13, fontWeight: 600 }}>(94%)</span></div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Beantwortet</div>
+            </div>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--orange)' }}>18</div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Follow-Ups</div>
+            </div>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--purple)' }}>5</div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Besichtigungen gebucht</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 12, padding: 12, background: 'var(--green-dim)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 20 }}>📈</span>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--green)' }}>7.5%</div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Conversion Rate (Anfrage → Besichtigung)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Portal-Aufschlüsselung & Status-Verteilung */}
+      <div className="grid grid-2 section-gap">
+        <div className="card">
+          <div className="card-header"><span className="card-title">Portal-Aufschlüsselung</span><span className="card-icon">🌐</span></div>
+          {[
+            { name: 'Homegate', count: 28, pct: 42, color: 'var(--blue)' },
+            { name: 'ImmoScout24', count: 18, pct: 27, color: 'var(--green)' },
+            { name: 'Comparis', count: 12, pct: 18, color: 'var(--orange)' },
+            { name: 'FlatFox', count: 5, pct: 7, color: 'var(--purple)' },
+            { name: 'Andere', count: 4, pct: 6, color: 'var(--text-dim)' },
+          ].map((p, i) => (
+            <div key={i} className="bar-row">
+              <div className="bar-label">{p.name}</div>
+              <div className="bar-track">
+                <div className="bar-fill" style={{ width: `${p.pct * 2.3}%`, background: p.color, color: p.pct > 15 ? 'var(--bg)' : p.color }}>
+                  {p.pct > 15 ? `${p.count}` : ''}
+                </div>
+              </div>
+              <div className="bar-value" style={{ color: p.color }}>{p.pct}%</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="card">
+          <div className="card-header"><span className="card-title">Status-Verteilung</span><span className="card-icon">🎯</span></div>
+          <Donut
+            segments={[
+              { value: 72, color: 'var(--green)', label: 'Beantwortet' },
+              { value: 14, color: 'var(--orange)', label: 'Follow-Up gesendet' },
+              { value: 6, color: 'var(--blue)', label: 'Kein Match' },
+              { value: 3, color: 'var(--red)', label: 'Fehler' },
+              { value: 5, color: 'var(--purple)', label: 'Keine Referenz' },
+            ]}
+            centerVal="87"
+            centerLabel="Total"
+          />
+          <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Beantwortet: <strong style={{ color: 'var(--green)' }}>63</strong></div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Follow-Up: <strong style={{ color: 'var(--orange)' }}>12</strong></div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Kein Match: <strong style={{ color: 'var(--blue)' }}>5</strong></div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Fehler: <strong style={{ color: 'var(--red)' }}>3</strong></div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Keine Ref.: <strong style={{ color: 'var(--purple)' }}>4</strong></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Top-Objekte Ranking */}
+      <div className="card section-gap">
+        <div className="card-header"><span className="card-title">Top-Objekte Ranking</span><span className="card-icon">🏆</span></div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ref</th>
+                <th>Objekt</th>
+                <th>Ort</th>
+                <th>Anfragen</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { ref: '198', obj: 'Poolvilla Fällanden', ort: 'Zürich', anfragen: 8, status: 'trending', label: '⬆️ Trending' },
+                { ref: '200', obj: 'Penthouse Friedrichshafen', ort: 'Bodensee', anfragen: 6, status: 'trending', label: '⬆️ Trending' },
+                { ref: '153', obj: 'Villa Moosleerau', ort: 'Aargau', anfragen: 5, status: 'stable', label: '→ Stabil' },
+                { ref: '195', obj: 'Haus Busswil', ort: 'Lyss', anfragen: 4, status: 'stable', label: '→ Stabil' },
+                { ref: '182', obj: 'Haus Mümliswil', ort: 'Solothurn', anfragen: 3, status: 'declining', label: '↓ Abnehmend' },
+              ].map((o, i) => (
+                <tr key={i}>
+                  <td><span style={{ fontFamily: 'monospace', color: 'var(--gold)', fontWeight: 700 }}>#{o.ref}</span></td>
+                  <td style={{ fontWeight: 600 }}>{o.obj}</td>
+                  <td style={{ color: 'var(--text-dim)' }}>{o.ort}</td>
+                  <td><span style={{ fontSize: 18, fontWeight: 800, color: 'var(--blue)' }}>{o.anfragen}</span></td>
+                  <td>
+                    <span className={`tag ${o.status === 'trending' ? 'tag-green' : o.status === 'stable' ? 'tag-blue' : 'tag-red'}`}>
+                      {o.label}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Anfragen-Timeline + Berater + Follow-Up */}
+      <div className="grid grid-3 section-gap">
+        <div className="card">
+          <div className="card-header"><span className="card-title">Anfragen letzte 7 Tage</span><span className="card-icon">📈</span></div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 140, paddingTop: 10 }}>
+            {weekDays.map((d, i) => (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)' }}>{d.val}</span>
+                <div style={{
+                  width: '100%',
+                  height: `${(d.val / maxDay) * 100}px`,
+                  background: d.val === maxDay ? 'var(--gold)' : 'var(--blue)',
+                  borderRadius: '4px 4px 0 0',
+                  transition: 'height 0.5s ease',
+                  minHeight: 8,
+                }}></div>
+                <span style={{ fontSize: 10, color: 'var(--text-dim)', fontWeight: 600 }}>{d.day}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 12, textAlign: 'center', fontSize: 12, color: 'var(--text-dim)' }}>
+            Total: <strong style={{ color: 'var(--text)' }}>67 Anfragen</strong> | Ø <strong style={{ color: 'var(--gold)' }}>9.6/Tag</strong>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-header"><span className="card-title">Berater-Performance</span><span className="card-icon">👤</span></div>
+          <div style={{ textAlign: 'center', padding: '16px 0' }}>
+            <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'var(--gold-glow)', border: '2px solid var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 12px' }}>RK</div>
+            <div style={{ fontSize: 16, fontWeight: 700 }}>Roger Kielholz</div>
+            <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 16 }}>Hauptberater</div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8, textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--blue)' }}>45</div>
+              <div style={{ fontSize: 10, color: 'var(--text-dim)' }}>Anfragen</div>
+            </div>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8, textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--green)' }}>2.1 Min</div>
+              <div style={{ fontSize: 10, color: 'var(--text-dim)' }}>Ø Antwortzeit</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-header"><span className="card-title">Follow-Up Erfolgsrate</span><span className="card-icon">🔄</span></div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-dim)' }}>Gesendet</span>
+                <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--orange)' }}>18</span>
+              </div>
+              <div className="progress-bar" style={{ marginTop: 8 }}>
+                <div className="progress-fill" style={{ width: '100%', background: 'var(--orange)' }}></div>
+              </div>
+            </div>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-dim)' }}>Antwort erhalten</span>
+                <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--blue)' }}>7 <span style={{ fontSize: 12, fontWeight: 600 }}>(39%)</span></span>
+              </div>
+              <div className="progress-bar" style={{ marginTop: 8 }}>
+                <div className="progress-fill" style={{ width: '39%', background: 'var(--blue)' }}></div>
+              </div>
+            </div>
+            <div style={{ padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-dim)' }}>Besichtigung gebucht</span>
+                <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--green)' }}>3 <span style={{ fontSize: 12, fontWeight: 600 }}>(17%)</span></span>
+              </div>
+              <div className="progress-bar" style={{ marginTop: 8 }}>
+                <div className="progress-fill" style={{ width: '17%', background: 'var(--green)' }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── SKILLS PAGE ──
+function SkillsPage() {
+  const categoryColors = {
+    Research: 'var(--blue)',
+    Product: 'var(--purple)',
+    Marketing: 'var(--orange)',
+    Tech: 'var(--green)',
+    Operations: 'var(--gold)',
+  };
+
+  return (
+    <>
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Projekt-Skills</h2>
+          <p className="page-subtitle">9 spezialisierte Skills für das SaaS-Projekt</p>
+        </div>
+        <span className="header-badge" style={{ background: 'var(--green-dim)', color: 'var(--green)' }}>9/9 Aktiv</span>
+      </div>
+
+      {/* Kategorie-Übersicht */}
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', marginBottom: 8 }}>
+        {Object.entries(categoryColors).map(([cat, color]) => {
+          const count = skillsData.filter(s => s.category === cat).length;
+          return (
+            <div key={cat} className="card" style={{ textAlign: 'center', padding: 14 }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color }}>{count}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>{cat}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Skills Grid */}
+      <div className="grid grid-3 section-gap">
+        {skillsData.map((s, i) => (
+          <div key={i} className={`skill-card ${s.status === 'In Entwicklung' ? 'dev' : ''}`}>
+            <div className="skill-icon">{s.icon}</div>
+            <div className="skill-name">{s.name}</div>
+            <div className="skill-desc">{s.desc}</div>
+            <div className="skill-meta">
+              <span className={`tag ${s.status === 'Aktiv' ? 'tag-green' : 'tag-blue'}`}>{s.status}</span>
+              <span className="tag" style={{ background: categoryColors[s.category] + '22', color: categoryColors[s.category] }}>{s.category}</span>
+            </div>
+            <div style={{ marginTop: 12, padding: 10, background: 'var(--surface2)', borderRadius: 6, fontSize: 11, fontFamily: 'monospace', color: 'var(--text-dim)', lineHeight: 1.5 }}>
+              {s.example}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// ── MARKET PAGE ──
+function MarketPage() {
+  return (
+    <>
+      <div className="page-header">
+        <div><h2 className="page-title">Marktanalyse</h2><p className="page-subtitle">DACH Immobilien-Autoresponder Markt</p></div>
+      </div>
+
+      <div className="grid grid-3">
+        {[
+          { country: '🇨🇭 Schweiz', total: '3.5–4K', makler: '1.8–2.2K', target: '900–1.2K' },
+          { country: '🇩🇪 Deutschland', total: '35–40K', makler: '15–18K', target: '7–9K' },
+          { country: '🇦🇹 Österreich', total: '4.5–5.5K', makler: '2–2.5K', target: '1–1.3K' },
+        ].map((c, i) => (
+          <div key={i} className="card">
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>{c.country}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}><span style={{ color: 'var(--text-dim)' }}>Immobilienfirmen</span><strong>{c.total}</strong></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}><span style={{ color: 'var(--text-dim)' }}>Makler/Vermarkter</span><strong>{c.makler}</strong></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}><span style={{ color: 'var(--gold)' }}>Zielgruppe</span><strong style={{ color: 'var(--gold)' }}>{c.target}</strong></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card section-gap">
+        <div className="card-header"><span className="card-title">Wettbewerbsmatrix</span><span className="card-icon">⚔️</span></div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Anbieter</th>
+                <th>Autoresponder</th>
+                <th>Rich HTML</th>
+                <th>Video-Tour</th>
+                <th>Follow-Up</th>
+              </tr>
+            </thead>
+            <tbody>
+              {competitors.map((c, i) => (
+                <tr key={i} style={c.highlight ? { background: 'var(--gold-glow)' } : {}}>
+                  <td style={c.highlight ? { color: 'var(--gold)', fontWeight: 700 } : {}}>{c.name}</td>
+                  <td><span className={`tag ${c.auto === 'Premium' ? 'tag-gold' : c.auto === 'Basis' ? 'tag-orange' : 'tag-red'}`}>{c.auto}</span></td>
+                  <td>{c.html === true ? '✅' : c.html === '~' ? '🟡' : '❌'}</td>
+                  <td>{c.video === true ? '✅' : '❌'}</td>
+                  <td>{c.followup === true ? '✅' : c.followup === '~' ? '🟡' : '❌'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="card section-gap">
+        <div className="card-header"><span className="card-title">Warum Makler Deals verlieren</span><span className="card-icon">📉</span></div>
+        {[
+          { reason: 'Zu langsame Antwort', pct: 35, color: 'var(--red)', fix: true },
+          { reason: 'Kein Follow-Up', pct: 25, color: 'var(--orange)', fix: true },
+          { reason: 'Unprofessionelle Erstantwort', pct: 20, color: 'var(--gold)', fix: true },
+          { reason: 'Falsche/veraltete Infos', pct: 10, color: 'var(--blue)', fix: true },
+          { reason: 'Preis/Objekt passt nicht', pct: 10, color: 'var(--text-dim)', fix: false },
+        ].map((r, i) => (
+          <div key={i} className="bar-row">
+            <div className="bar-label">{r.reason}</div>
+            <div className="bar-track">
+              <div className="bar-fill" style={{ width: `${r.pct * 2.5}%`, background: r.color, color: r.pct > 15 ? 'var(--bg)' : r.color }}>
+                {r.pct > 15 ? `${r.pct}%` : ''}
+              </div>
+            </div>
+            <div className="bar-value" style={{ color: r.color }}>{r.pct}%</div>
+            <span className={`tag ${r.fix ? 'tag-green' : 'tag-red'}`}>{r.fix ? 'Lösbar' : 'Markt'}</span>
+          </div>
+        ))}
+        <div style={{ marginTop: 12, padding: '10px 16px', background: 'var(--green-dim)', borderRadius: 8, fontSize: 13, fontWeight: 600, color: 'var(--green)' }}>
+          → 80% der verlorenen Deals sind durch unseren Autoresponder vermeidbar
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── PRODUCT PAGE ──
+function ProductPage() {
+  return (
+    <>
+      <div className="page-header">
+        <div><h2 className="page-title">Produktkonzept</h2><p className="page-subtitle">Features, Dashboard, User Flows</p></div>
+      </div>
+
+      <div className="card">
+        <div className="card-header"><span className="card-title">Core Features (MVP)</span><span className="card-icon">🎯</span></div>
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Feature</th><th>Priorität</th><th>Beschreibung</th></tr></thead>
+            <tbody>
+              {[
+                { name: 'Portal-Erkennung & Parsing', prio: 'P0', desc: 'Automatische Erkennung von Homegate, ImmoScout24, Comparis, FlatFox' },
+                { name: 'Objekt-Datenbank', prio: 'P0', desc: 'CRUD für Objekte mit Medien, Berater-Zuweisung' },
+                { name: 'Auto-Response Engine', prio: 'P0', desc: 'Premium-HTML-Mail in <5 Min nach Eingang' },
+                { name: 'Template-System', prio: 'P0', desc: 'Visueller Editor mit Platzhaltern und Live-Preview' },
+                { name: 'Gmail/Outlook Integration', prio: 'P0', desc: 'OAuth, Versand über Firmen-Mailkonto' },
+                { name: 'Follow-Up Automation', prio: 'P1', desc: 'Konfigurierbar (48h Standard), separates Template' },
+                { name: 'Aktivitäts-Log', prio: 'P1', desc: 'Chronologisch, Push-Benachrichtigungen, Alerts' },
+                { name: 'Multi-User & Rollen', prio: 'P1', desc: 'Admin, Berater, Viewer — pro Objekt' },
+              ].map((f, i) => (
+                <tr key={i}>
+                  <td style={{ fontWeight: 600 }}>{f.name}</td>
+                  <td><span className={`tag ${f.prio === 'P0' ? 'tag-red' : 'tag-orange'}`}>{f.prio}</span></td>
+                  <td style={{ color: 'var(--text-dim)' }}>{f.desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="card section-gap">
+        <div className="card-header"><span className="card-title">Premium Features (Upsell)</span><span className="card-icon">💎</span></div>
+        <div className="grid grid-2" style={{ gap: 8 }}>
+          {[
+            { name: 'KI-Personalisierung', icon: '🤖' },
+            { name: 'Lead Scoring', icon: '📊' },
+            { name: 'Besichtigungs-Buchung', icon: '📅' },
+            { name: 'WhatsApp Autoresponder', icon: '💬' },
+            { name: 'Portal-ROI Analytics', icon: '📈' },
+            { name: 'Multi-Sprache DE/FR/IT', icon: '🌍' },
+            { name: 'CRM-Integration', icon: '🔗' },
+            { name: 'Absage-Automation', icon: '📭' },
+            { name: 'A/B-Testing Templates', icon: '🧪' },
+            { name: 'API & Webhooks', icon: '⚡' },
+          ].map((f, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: 'var(--surface2)', borderRadius: 8, fontSize: 13, fontWeight: 500 }}>
+              <span style={{ fontSize: 18 }}>{f.icon}</span> {f.name}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card section-gap">
+        <div className="card-header"><span className="card-title">Dashboard-Screens</span><span className="card-icon">🖥️</span></div>
+        <div className="grid grid-3">
+          {screens.map((s, i) => (
+            <div key={i} style={{ padding: 16, background: 'var(--surface2)', borderRadius: 8, textAlign: 'center' }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>{s.icon}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{s.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── PRICING PAGE ──
+function PricingPage() {
+  return (
+    <>
+      <div className="page-header">
+        <div><h2 className="page-title">Pricing & Revenue</h2><p className="page-subtitle">Tiers, Unit Economics, Projektion</p></div>
+      </div>
+
+      <div className="grid grid-3">
+        {[
+          {
+            name: 'Starter', price: '149', recommended: false,
+            features: ['25 aktive Objekte', '2 Benutzer', '3 Templates', '1 Follow-Up', '4 Portale', 'Gmail + Outlook', 'E-Mail Support'],
+          },
+          {
+            name: 'Professional', price: '349', recommended: true,
+            features: ['100 aktive Objekte', '5 Benutzer', '10 Templates', '3 Follow-Up Sequenzen', 'Alle Portale', 'Visueller Template-Editor', 'Lead Scoring', 'Analytics Dashboard', 'Priority Support'],
+          },
+          {
+            name: 'Enterprise', price: '799', recommended: false,
+            features: ['Unbegrenzte Objekte', 'Unbegrenzte Benutzer', 'Unbegrenzte Templates', 'Unbegrenzte Sequenzen', 'KI-Personalisierung', 'WhatsApp', 'CRM-Integration', 'API & Webhooks', 'Dedicated CSM', 'White-Glove Onboarding'],
+          },
+        ].map((t, i) => (
+          <div key={i} className={`card tier-card ${t.recommended ? 'recommended' : ''}`}>
+            <div className="tier-name">{t.name}</div>
+            <div className="tier-price">CHF {t.price}</div>
+            <div className="tier-period">pro Monat</div>
+            <ul className="tier-features">
+              {t.features.map((f, j) => (
+                <li key={j}><span className="check">✓</span> {f}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-2 section-gap">
+        <div className="card">
+          <div className="card-header"><span className="card-title">Unit Economics</span><span className="card-icon">💰</span></div>
+          {[
+            { label: 'Blended CAC', value: 'CHF 500', color: 'var(--orange)' },
+            { label: 'LTV', value: 'CHF 10,200', color: 'var(--green)' },
+            { label: 'LTV:CAC Ratio', value: '20:1', color: 'var(--gold)' },
+            { label: 'Durchschn. MRR/Kunde', value: 'CHF 300', color: 'var(--blue)' },
+            { label: 'Bruttomarge', value: '85%', color: 'var(--purple)' },
+            { label: 'Kundenlebensdauer', value: '40 Monate', color: 'var(--text)' },
+          ].map((u, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
+              <span style={{ color: 'var(--text-dim)' }}>{u.label}</span>
+              <strong style={{ color: u.color }}>{u.value}</strong>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div className="card-header"><span className="card-title">Kunden-Mix (Ziel)</span><span className="card-icon">🎯</span></div>
+          <Donut
+            segments={[
+              { value: 25, color: 'var(--blue)', label: 'Starter' },
+              { value: 65, color: 'var(--gold)', label: 'Professional' },
+              { value: 10, color: 'var(--purple)', label: 'Enterprise' },
+            ]}
+            centerVal="65%"
+            centerLabel="Pro"
+          />
+          <p style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 12 }}>
+            Professional ist der Sweet Spot — 80% der Kunden sollen hier landen.
+          </p>
+        </div>
+      </div>
+
+      <div className="card section-gap">
+        <div className="card-header"><span className="card-title">Upsell-Potenzial</span><span className="card-icon">📈</span></div>
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Add-on</th><th>Preis</th><th>Trigger</th></tr></thead>
+            <tbody>
+              {[
+                { name: 'Zusätzliche Objekte', price: 'CHF 3/Objekt/Mt.', trigger: 'Limit überschritten' },
+                { name: 'WhatsApp-Autoresponder', price: 'CHF 99/Mt.', trigger: 'Nach 3 Monaten' },
+                { name: 'KI-Qualifizierung', price: 'CHF 149/Mt.', trigger: 'Lead Scoring Feature' },
+                { name: 'Mehrsprachigkeit', price: 'CHF 49/Mt.', trigger: 'DE/FR/IT/EN' },
+                { name: 'Custom Branding', price: 'CHF 490 einmalig', trigger: 'Beim Onboarding' },
+                { name: 'API-Zugang', price: 'CHF 199/Mt.', trigger: 'Tech-affine Kunden' },
+              ].map((u, i) => (
+                <tr key={i}>
+                  <td style={{ fontWeight: 600 }}>{u.name}</td>
+                  <td style={{ color: 'var(--gold)' }}>{u.price}</td>
+                  <td style={{ color: 'var(--text-dim)' }}>{u.trigger}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── ROADMAP PAGE ──
+function RoadmapPage() {
+  return (
+    <>
+      <div className="page-header">
+        <div><h2 className="page-title">Roadmap</h2><p className="page-subtitle">Von MVP bis DACH-Expansion</p></div>
+      </div>
+      <div className="card">
+        {roadmap.map((r, i) => (
+          <div key={i} className="timeline-item">
+            <div className="timeline-dot" style={{ background: r.color + '22', color: r.color, border: `2px solid ${r.color}` }}>
+              {r.icon}
+            </div>
+            <div className="timeline-content">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div className="timeline-title">{r.phase}</div>
+                <span className="tag tag-blue">{r.months}</span>
+              </div>
+              <div className="timeline-desc">Ziel: {r.goal}</div>
+              <div className="timeline-tasks">
+                {r.tasks.map((t, j) => <span key={j} className="timeline-task">{t}</span>)}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card section-gap">
+        <div className="card-header"><span className="card-title">Key Metrics pro Phase</span><span className="card-icon">📊</span></div>
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>KPI</th><th>Monat 3</th><th>Monat 6</th><th>Monat 12</th></tr></thead>
+            <tbody>
+              {[
+                { kpi: 'Kunden', m3: '10', m6: '40', m12: '80' },
+                { kpi: 'MRR', m3: 'CHF 2.8K', m6: 'CHF 11.2K', m12: 'CHF 22.4K' },
+                { kpi: 'ARR', m3: 'CHF 33.6K', m6: 'CHF 134K', m12: 'CHF 269K' },
+                { kpi: 'Churn (monatl.)', m3: '5%', m6: '3%', m12: '2.5%' },
+                { kpi: 'NPS', m3: 'n/a', m6: '>40', m12: '>50' },
+                { kpi: 'Team', m3: '1', m6: '1', m12: '3' },
+              ].map((r, i) => (
+                <tr key={i}>
+                  <td style={{ fontWeight: 600 }}>{r.kpi}</td>
+                  <td>{r.m3}</td>
+                  <td>{r.m6}</td>
+                  <td style={{ color: 'var(--gold)', fontWeight: 600 }}>{r.m12}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── TECH PAGE ──
+function TechPage() {
+  return (
+    <>
+      <div className="page-header">
+        <div><h2 className="page-title">Tech-Stack</h2><p className="page-subtitle">Empfohlene Architektur</p></div>
+      </div>
+
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <pre style={{ padding: 24, fontSize: 12, lineHeight: 1.8, color: 'var(--text-dim)', overflow: 'auto', margin: 0, background: 'var(--surface)' }}>{`
+                    ┌─────────────────────┐
+                    │   Cloudflare CDN    │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │   Next.js Frontend  │
+                    │   (Vercel / SSR)    │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │   API Layer (tRPC)  │
+                    └──────────┬──────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              │                │                │
+   ┌──────────▼────┐  ┌───────▼───────┐  ┌─────▼─────────┐
+   │  PostgreSQL   │  │  Redis        │  │  Cloudflare   │
+   │  (Supabase)   │  │  (Upstash)    │  │  R2 (Storage) │
+   └───────────────┘  └───────┬───────┘  └───────────────┘
+                              │
+                    ┌─────────▼───────────┐
+                    │   Worker Service    │
+                    │   (Railway)         │
+                    │   ─ Inbox Scanner   │
+                    │   ─ Mail Sender     │
+                    │   ─ Follow-Up       │
+                    └─────────┬───────────┘
+                              │
+                    ┌─────────▼───────────┐
+                    │   Gmail / Outlook   │
+                    │   API (OAuth 2.0)   │
+                    └─────────────────────┘`}</pre>
+      </div>
+
+      <div className="grid grid-2 section-gap">
+        {techStack.map((t, i) => (
+          <div key={i} className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ width: 4, height: 40, borderRadius: 2, background: t.color, flexShrink: 0 }}></div>
+            <div>
+              <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 1.5, color: t.color, fontWeight: 600 }}>{t.area}</div>
+              <div style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }}>{t.tech}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card section-gap">
+        <div className="card-header"><span className="card-title">Datenbank-Schema (Kern)</span><span className="card-icon">🗃️</span></div>
+        <div className="grid grid-3" style={{ gap: 8 }}>
+          {['organizations', 'users', 'properties', 'property_media', 'agents', 'templates', 'inquiries', 'responses', 'follow_ups', 'activity_log', 'email_accounts'].map((t, i) => (
+            <div key={i} style={{ padding: '8px 12px', background: 'var(--surface2)', borderRadius: 6, fontSize: 13, fontFamily: 'monospace', color: 'var(--gold)' }}>{t}</div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── RISKS PAGE ──
+function RisksPage() {
+  return (
+    <>
+      <div className="page-header">
+        <div><h2 className="page-title">Risiken & Mitigation</h2><p className="page-subtitle">Top 5 Risiken mit Gegenmassnahmen</p></div>
+      </div>
+
+      <div className="card">
+        <div className="card-header"><span className="card-title">Risiko-Übersicht</span><span className="card-icon">⚠️</span></div>
+        {risks.map((r, i) => (
+          <div key={i} className="risk-row">
+            <div className="risk-label">{r.label}</div>
+            <div className="risk-meter"><div className="risk-fill" style={{ width: `${r.pct}%`, background: r.color }}></div></div>
+            <div className="risk-pct" style={{ color: r.color }}>{r.pct}%</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-1 section-gap" style={{ gap: 12 }}>
+        {[
+          { title: 'API-Abhängigkeit von Portal-Schnittstellen', pct: 60, color: 'var(--red)',
+            measures: ['Offizielle API-Partnerschaften anstreben', 'Robustes Parsing mit Fallback-Mechanismen', 'Mehrere Integrationsarten (API, E-Mail-Parsing, Webhook)', 'Monitoring & Alerting bei Breaking Changes'] },
+          { title: 'Langsame Adoption (konservative Branche)', pct: 50, color: 'var(--orange)',
+            measures: ['14-Tage-Test ohne Kreditkarte', 'ROI-Rechner: "Sie verlieren CHF X pro Monat"', 'Case Studies mit echten Schweizer Maklern', '"Setup in 15 Minuten" — keine IT nötig'] },
+          { title: 'Portale bauen Feature selbst', pct: 40, color: 'var(--orange)',
+            measures: ['Partnerschaft statt Konkurrenz — Whitelabel anbieten', 'Feature-Tiefe als Differenzierung', 'Portal-übergreifend sein', 'Schneller sein als interne Teams'] },
+          { title: 'CasaSoft baut es als CRM-Feature', pct: 35, color: 'var(--gold)',
+            measures: ['Aktiv Partnerschaft suchen', 'Spezialisierung: Autoresponder ist unser GANZES Produkt', 'CRM-agnostisch bleiben'] },
+          { title: 'Zu kleiner Markt (nur Schweiz)', pct: 30, color: 'var(--green)',
+            measures: ['DACH-Expansion (ImmoScout24.de, willhaben.at)', 'Upsell-Strategie: Mehr Revenue pro Kunde', 'Angrenzende Verticals: Verwaltungen, Bauträger', 'CHF 5M ARR = exzellentes Lifestyle-Business'] },
+        ].map((r, i) => (
+          <div key={i} className="card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <span className="tag" style={{ background: r.color + '22', color: r.color }}>{r.pct}%</span>
+              <span style={{ fontSize: 14, fontWeight: 700 }}>{r.title}</span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {r.measures.map((m, j) => (
+                <div key={j} style={{ fontSize: 12, padding: '6px 12px', background: 'var(--surface2)', borderRadius: 6, color: 'var(--text-dim)' }}>✓ {m}</div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// ── APP ──
+function App() {
+  const [page, setPage] = useState('overview');
+
+  const renderPage = () => {
+    switch(page) {
+      case 'overview': return <OverviewPage />;
+      case 'reporting': return <ReportingPage />;
+      case 'skills': return <SkillsPage />;
+      case 'market': return <MarketPage />;
+      case 'product': return <ProductPage />;
+      case 'pricing': return <PricingPage />;
+      case 'roadmap': return <RoadmapPage />;
+      case 'tech': return <TechPage />;
+      case 'risks': return <RisksPage />;
+      default: return <OverviewPage />;
+    }
+  };
+
+  return (
+    <div className="app">
+      <nav className="sidebar">
+        <div className="sidebar-logo">
+          <h1>AutoRespond</h1>
+          <span>SaaS Projekt</span>
+        </div>
+        <div className="nav-section">Dashboard</div>
+        {pages.map(p => (
+          <div key={p.id} className={`nav-item ${page === p.id ? 'active' : ''}`} onClick={() => setPage(p.id)}>
+            <span className="nav-icon">{p.icon}</span>
+            {p.label}
+          </div>
+        ))}
+        <div className="nav-section">Dokumente</div>
+        <a href="01-Research/Marktanalyse.md" className="nav-item" style={{ textDecoration: 'none' }}>
+          <span className="nav-icon">📄</span>Marktanalyse
+        </a>
+        <a href="01-Research/Business-Strategie.md" className="nav-item" style={{ textDecoration: 'none' }}>
+          <span className="nav-icon">📄</span>Business-Strategie
+        </a>
+        <a href="02-Produkt/Produktkonzept.md" className="nav-item" style={{ textDecoration: 'none' }}>
+          <span className="nav-icon">📄</span>Produktkonzept
+        </a>
+        <div className="sidebar-footer">
+          <p>Stand: 16. März 2026</p>
+          <p style={{ marginTop: 4, color: 'var(--gold)' }}>Phase 3 — Branding</p>
+        </div>
+      </nav>
+      <main className="main">
+        {renderPage()}
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

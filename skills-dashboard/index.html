@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Opportunity Engine — Master Dashboard</title>
+<style>
+:root {
+  --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a2e; --surface3: #222240;
+  --border: #2a2a3e; --border2: #3a3a5e;
+  --accent: #6c5ce7; --accent2: #a29bfe; --accent-bg: rgba(108,92,231,0.15);
+  --green: #00b894; --green-bg: rgba(0,184,148,0.15);
+  --yellow: #fdcb6e; --yellow-bg: rgba(253,203,110,0.15);
+  --red: #e17055; --red-bg: rgba(225,112,85,0.15);
+  --blue: #74b9ff; --blue-bg: rgba(116,185,255,0.15);
+  --pink: #fd79a8;
+  --text: #e0e0e0; --text2: #8888aa; --text3: #555570;
+  --g1: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  --g2: linear-gradient(135deg, #00b894, #55efc4);
+  --g3: linear-gradient(135deg, #fd79a8, #e17055);
+  --g4: linear-gradient(135deg, #74b9ff, #0984e3);
+  --glass: rgba(255,255,255,0.04);
+  --radius: 10px; --radius-sm: 6px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow:hidden; }
+::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+button { font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+input,textarea,select { font-family:inherit; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); padding:8px 12px; outline:none; }
+input:focus,textarea:focus,select:focus { border-color:var(--accent); }
+
+/* Layout */
+.app { display:grid; grid-template-columns:240px 1fr; grid-template-rows:56px 1fr; height:100vh; }
+.header { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; padding:0 24px; border-bottom:1px solid var(--border); background:var(--surface); z-index:100; }
+.logo { font-size:18px; font-weight:700; background:var(--g1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.header-center { display:flex; align-items:center; gap:8px; }
+.search-box { width:320px; padding:7px 14px 7px 36px; border-radius:20px; font-size:13px; background:var(--surface2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238888aa' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 12px center; }
+.header-right { display:flex; gap:8px; align-items:center; }
+.badge { background:var(--surface2); border:1px solid var(--border); border-radius:16px; padding:4px 12px; font-size:11px; color:var(--accent2); }
+.btn-primary { background:var(--g1); color:#fff; border-radius:var(--radius-sm); padding:7px 16px; font-size:12px; font-weight:600; transition:all .2s; }
+.btn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 15px rgba(108,92,231,.4); }
+.btn-sm { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:5px 10px; font-size:11px; color:var(--text2); transition:all .2s; }
+.btn-sm:hover { border-color:var(--accent); color:var(--accent2); }
+.btn-sm.active { background:var(--accent-bg); color:var(--accent2); border-color:var(--accent); }
+
+/* Sidebar */
+.sidebar { background:var(--surface); border-right:1px solid var(--border); padding:16px 0; overflow-y:auto; }
+.sb-section { margin-bottom:20px; }
+.sb-title { font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text3); padding:0 20px; margin-bottom:8px; }
+.sb-item { display:flex; align-items:center; gap:10px; padding:8px 20px; font-size:13px; color:var(--text2); cursor:pointer; transition:all .15s; border-left:3px solid transparent; }
+.sb-item:hover { background:var(--glass); color:var(--text); }
+.sb-item.active { background:var(--accent-bg); color:var(--accent2); border-left-color:var(--accent); }
+.sb-icon { width:16px; text-align:center; font-size:14px; }
+.sb-badge { margin-left:auto; background:var(--surface2); border-radius:8px; padding:1px 7px; font-size:10px; min-width:20px; text-align:center; }
+
+/* Content */
+.content { overflow-y:auto; padding:24px; }
+.view { display:none; } .view.active { display:block; }
+
+/* Stats */
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+.stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; position:relative; overflow:hidden; cursor:pointer; transition:all .2s; }
+.stat:hover { border-color:var(--accent); transform:translateY(-2px); }
+.stat::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.stat:nth-child(1)::after{background:var(--g1)} .stat:nth-child(2)::after{background:var(--g2)} .stat:nth-child(3)::after{background:var(--g4)} .stat:nth-child(4)::after{background:var(--g3)}
+.stat-label { font-size:11px; color:var(--text2); margin-bottom:6px; }
+.stat-val { font-size:26px; font-weight:700; }
+.stat-sub { font-size:10px; color:var(--text3); margin-top:4px; }
+
+/* Actions Bar */
+.actions-bar { display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap; }
+.action-card { flex:1; min-width:140px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; text-align:center; cursor:pointer; transition:all .2s; }
+.action-card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 4px 20px rgba(108,92,231,.15); }
+.action-card .icon { font-size:22px; margin-bottom:6px; }
+.action-card .label { font-size:12px; font-weight:600; }
+.action-card .cmd { font-size:10px; color:var(--text3); margin-top:3px; font-family:'SF Mono',monospace; }
+
+/* Section Header */
+.sec-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.sec-head h2 { font-size:15px; font-weight:600; }
+.filters { display:flex; gap:6px; }
+
+/* Kanban */
+.kanban { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:24px; }
+.kb-col { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px; min-height:200px; transition:background .2s; }
+.kb-col.drag-over { background:var(--accent-bg); border-color:var(--accent); }
+.kb-head { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text3); padding-bottom:8px; border-bottom:1px solid var(--border); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+.kb-cnt { background:var(--surface2); border-radius:8px; padding:1px 6px; font-size:9px; }
+.card { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:6px; cursor:grab; transition:all .15s; position:relative; }
+.card:hover { border-color:var(--accent); }
+.card:active { cursor:grabbing; opacity:.8; }
+.card-name { font-size:12px; font-weight:600; margin-bottom:3px; }
+.card-niche { font-size:10px; color:var(--accent2); margin-bottom:5px; }
+.card-score { display:flex; align-items:center; gap:6px; }
+.card-bar { flex:1; height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+.card-fill { height:100%; border-radius:2px; transition:width .3s; }
+.card-num { font-size:10px; font-weight:700; min-width:20px; text-align:right; }
+.card-actions { position:absolute; top:6px; right:6px; display:none; gap:4px; }
+.card:hover .card-actions { display:flex; }
+.card-btn { width:20px; height:20px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:10px; background:var(--surface); border:1px solid var(--border); }
+.card-btn:hover { border-color:var(--accent); color:var(--accent2); }
+
+/* Industries */
+.ind-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:24px; }
+.ind-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; cursor:pointer; transition:all .2s; }
+.ind-card:hover { border-color:var(--accent); transform:translateY(-1px); }
+.ind-card.active { border-color:var(--accent); background:var(--accent-bg); }
+.ind-icon { font-size:24px; margin-bottom:6px; }
+.ind-name { font-size:12px; font-weight:600; margin-bottom:3px; }
+.ind-stats { font-size:10px; color:var(--text2); }
+.ind-bar { height:3px; background:var(--border); border-radius:2px; margin-top:8px; overflow:hidden; }
+.ind-fill { height:100%; border-radius:2px; background:var(--g1); transition:width .5s; }
+
+/* Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); z-index:1000; display:none; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border); border-radius:14px; width:90%; max-width:700px; max-height:85vh; overflow:hidden; display:flex; flex-direction:column; animation:modalIn .2s ease; }
+@keyframes modalIn { from { transform:translateY(20px); opacity:0; } to { transform:none; opacity:1; } }
+.modal-header { display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--border); }
+.modal-header h3 { font-size:16px; }
+.modal-close { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--text2); transition:all .15s; }
+.modal-close:hover { background:var(--red-bg); color:var(--red); }
+.modal-body { padding:24px; overflow-y:auto; flex:1; }
+.modal-footer { padding:14px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; }
+
+/* Tabs */
+.tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:18px; }
+.tab { padding:8px 16px; font-size:12px; color:var(--text2); cursor:pointer; border-bottom:2px solid transparent; transition:all .15s; }
+.tab:hover { color:var(--text); }
+.tab.active { color:var(--accent2); border-bottom-color:var(--accent); }
+.tab-panel { display:none; } .tab-panel.active { display:block; }
+
+/* Form */
+.form-row { margin-bottom:14px; }
+.form-row label { display:block; font-size:11px; color:var(--text2); margin-bottom:5px; text-transform:uppercase; letter-spacing:.5px; }
+.form-row input, .form-row textarea, .form-row select { width:100%; }
+.form-row textarea { min-height:80px; resize:vertical; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+/* Detail Scores */
+.score-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.score-item { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px; text-align:center; }
+.score-item .val { font-size:20px; font-weight:700; }
+.score-item .lbl { font-size:10px; color:var(--text2); margin-top:3px; }
+
+/* Activity */
+.activity-list { display:flex; flex-direction:column; }
+.act-item { display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+.act-item:last-child { border:none; }
+.act-dot { width:7px; height:7px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+.act-text { font-size:12px; } .act-time { font-size:10px; color:var(--text3); margin-top:2px; }
+
+/* Charts */
+.chart-container { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:18px; }
+.chart-title { font-size:13px; font-weight:600; margin-bottom:14px; }
+.bar-chart { display:flex; align-items:flex-end; gap:6px; height:120px; }
+.bar-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bar { border-radius:4px 4px 0 0; width:100%; transition:height .5s ease; }
+.bar-label { font-size:9px; color:var(--text3); writing-mode:vertical-lr; transform:rotate(180deg); max-height:60px; overflow:hidden; }
+.bar-val { font-size:10px; font-weight:600; }
+
+/* Skills View */
+.skill-pods { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.pod-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+.pod-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.pod-name { font-size:14px; font-weight:600; }
+.pod-count { font-size:11px; color:var(--accent2); }
+.skill-list { display:flex; flex-wrap:wrap; gap:4px; }
+.skill-chip { background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:3px 8px; font-size:10px; color:var(--text2); cursor:pointer; transition:all .15s; }
+.skill-chip:hover { border-color:var(--accent); color:var(--accent2); }
+.skill-chip.senior { border-color:var(--green); color:var(--green); background:var(--green-bg); }
+
+/* Toast */
+.toast { position:fixed; bottom:24px; right:24px; background:var(--surface2); border:1px solid var(--green); border-radius:var(--radius); padding:12px 20px; font-size:13px; color:var(--green); z-index:2000; transform:translateY(100px); opacity:0; transition:all .3s ease; }
+.toast.show { transform:none; opacity:1; }
+
+/* Responsive */
+@media(max-width:1100px) { .stats{grid-template-columns:repeat(2,1fr)} .kanban{grid-template-columns:repeat(3,1fr)} .ind-grid{grid-template-columns:repeat(2,1fr)} }
+@media(max-width:768px) { .app{grid-template-columns:1fr} .sidebar{display:none} }
+</style>
+</head>
+<body>
+<div class="app">
+<!-- Header -->
+<header class="header">
+  <div class="logo">AI Opportunity Engine</div>
+  <div class="header-center">
+    <input type="text" class="search-box" id="globalSearch" placeholder="Idee suchen, Branche filtern...">
+  </div>
+  <div class="header-right">
+    <span class="badge" id="badgeSkills">302 Skills</span>
+    <span class="badge" id="badgeIdeas">0 Ideen</span>
+    <button class="btn-primary" onclick="openNewIdea()">+ Neue Idee</button>
+  </div>
+</header>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sb-section">
+    <div class="sb-title">Navigation</div>
+    <div class="sb-item active" data-view="dashboard"><span class="sb-icon">&#9679;</span> Dashboard</div>
+    <div class="sb-item" data-view="pipeline"><span class="sb-icon">&#9776;</span> Ideen Pipeline <span class="sb-badge" id="sbPipeline">0</span></div>
+    <div class="sb-item" data-view="industries"><span class="sb-icon">&#127758;</span> Branchen Scanner</div>
+    <div class="sb-item" data-view="skills"><span class="sb-icon">&#9881;</span> Skill Teams</div>
+    <div class="sb-item" data-view="activity"><span class="sb-icon">&#9201;</span> Aktivitaeten</div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-title">Quick Commands</div>
+    <div class="sb-item" onclick="quickCmd('discover')"><span class="sb-icon" style="font-family:monospace">/</span> discover</div>
+    <div class="sb-item" onclick="quickCmd('deep-dive')"><span class="sb-icon" style="font-family:monospace">/</span> deep-dive</div>
+    <div class="sb-item" onclick="quickCmd('present')"><span class="sb-icon" style="font-family:monospace">/</span> present</div>
+    <div class="sb-item" onclick="quickCmd('build-mvp')"><span class="sb-icon" style="font-family:monospace">/</span> build-mvp</div>
+    <div class="sb-item" onclick="quickCmd('full-pipeline')"><span class="sb-icon" style="font-family:monospace">/</span> full-pipeline</div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-title">Pods</div>
+    <div class="sb-item" onclick="showPod('research')"><span class="sb-icon">&#128300;</span> Research <span class="sb-badge">12</span></div>
+    <div class="sb-item" onclick="showPod('idea')"><span class="sb-icon">&#128161;</span> Idea <span class="sb-badge">12</span></div>
+    <div class="sb-item" onclick="showPod('presentation')"><span class="sb-icon">&#127912;</span> Presentation <span class="sb-badge">12</span></div>
+    <div class="sb-item" onclick="showPod('execution')"><span class="sb-icon">&#9881;</span> Execution <span class="sb-badge">12</span></div>
+  </div>
+</nav>
+
+<!-- Content -->
+<main class="content">
+
+  <!-- Dashboard View -->
+  <div class="view active" id="view-dashboard">
+    <div class="stats" id="statsGrid"></div>
+    <div class="actions-bar">
+      <div class="action-card" onclick="openNewIdea()"><div class="icon">&#128161;</div><div class="label">Neue Idee</div><div class="cmd">Manuell erfassen</div></div>
+      <div class="action-card" onclick="quickCmd('discover')"><div class="icon">&#128269;</div><div class="label">Discover</div><div class="cmd">/discover [nische]</div></div>
+      <div class="action-card" onclick="quickCmd('deep-dive')"><div class="icon">&#128200;</div><div class="label">Deep Dive</div><div class="cmd">/deep-dive [idee]</div></div>
+      <div class="action-card" onclick="quickCmd('present')"><div class="icon">&#127912;</div><div class="label">Present</div><div class="cmd">/present [idee]</div></div>
+      <div class="action-card" onclick="quickCmd('full-pipeline')"><div class="icon">&#128640;</div><div class="label">Full Pipeline</div><div class="cmd">/full-pipeline</div></div>
+    </div>
+    <div class="sec-head"><h2>Ideen Pipeline</h2><div class="filters" id="dashFilters"></div></div>
+    <div class="kanban" id="dashKanban"></div>
+    <div class="sec-head"><h2>Branchen-Uebersicht</h2></div>
+    <div id="dashChart"></div>
+    <div class="sec-head"><h2>Letzte Aktivitaeten</h2></div>
+    <div id="dashActivity"></div>
+  </div>
+
+  <!-- Pipeline View -->
+  <div class="view" id="view-pipeline">
+    <div class="sec-head"><h2>Ideen Pipeline</h2><div style="display:flex;gap:8px"><button class="btn-primary" onclick="openNewIdea()">+ Neue Idee</button><div class="filters" id="pipeFilters"></div></div></div>
+    <div class="kanban" id="pipeKanban"></div>
+  </div>
+
+  <!-- Industries View -->
+  <div class="view" id="view-industries">
+    <div class="sec-head"><h2>Schweizer Branchen-Scanner</h2><button class="btn-sm" onclick="scanAllIndustries()">Alle scannen</button></div>
+    <div class="ind-grid" id="indGrid"></div>
+    <div id="indDetail" style="display:none"></div>
+  </div>
+
+  <!-- Skills View -->
+  <div class="view" id="view-skills">
+    <div class="sec-head"><h2>Skill Teams &amp; Pods</h2><span style="font-size:12px;color:var(--text2)">302 Skills in 11 Kategorien</span></div>
+    <div class="skill-pods" id="skillPods"></div>
+  </div>
+
+  <!-- Activity View -->
+  <div class="view" id="view-activity">
+    <div class="sec-head"><h2>Aktivitaeten-Log</h2><button class="btn-sm" onclick="clearActivity()">Log leeren</button></div>
+    <div class="chart-container"><div class="activity-list" id="fullActivity"></div></div>
+  </div>
+</main>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modalTitle">Neue Idee</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA LAYER =====
+const STAGES = ['discovered','researched','validated','presented','mvp'];
+const STAGE_LABELS = {discovered:'Discovered',researched:'Researched',validated:'Validated',presented:'Presented',mvp:'MVP Built'};
+const INDUSTRIES = [
+  {id:'fintech',name:'FinTech / InsurTech',icon:'\u{1F4B0}',color:'#6c5ce7'},
+  {id:'healthtech',name:'HealthTech / MedTech',icon:'\u{1F3E5}',color:'#00b894'},
+  {id:'proptech',name:'PropTech / ConTech',icon:'\u{1F3E2}',color:'#0984e3'},
+  {id:'edtech',name:'EdTech / HRTech',icon:'\u{1F393}',color:'#fdcb6e'},
+  {id:'legaltech',name:'LegalTech / RegTech',icon:'\u2696',color:'#e17055'},
+  {id:'cleantech',name:'CleanTech / AgriTech',icon:'\u{1F331}',color:'#00b894'},
+  {id:'logitech',name:'LogiTech / Mobility',icon:'\u{1F69A}',color:'#74b9ff'},
+  {id:'retailtech',name:'RetailTech / E-Commerce',icon:'\u{1F6D2}',color:'#fd79a8'},
+  {id:'traveltech',name:'TravelTech / Hospitality',icon:'\u2708',color:'#a29bfe'},
+  {id:'sportstech',name:'SportsTech / Entertainment',icon:'\u{1F3C6}',color:'#fdcb6e'},
+  {id:'cybersec',name:'CyberSecurity / DataTech',icon:'\u{1F512}',color:'#e17055'},
+  {id:'aiml',name:'AI/ML Infrastructure',icon:'\u{1F916}',color:'#6c5ce7'}
+];
+const SKILLS = {
+  'AI Opportunity Engine':{count:48,tags:['niche-scanner','trend-analyst','market-researcher','competitor-mapper','swiss-market-expert','tech-radar','idea-generator','idea-validator','business-model-designer','revenue-modeler','problem-validator','tam-calculator','mockup-generator','demo-builder','pitch-deck-creator','feature-showcase','brand-designer','ux-flow-designer','mvp-builder','tech-stack-selector','launch-planner','growth-hacker','investor-ready','cost-estimator'],senior:true},
+  'Betting Team':{count:55,tags:['match-research','statistical-modeler','bet-strategist','xg-analyst','arbitrage-finder','live-betting','portfolio-manager','league-scanner','tipster-aggregator']},
+  'Engineering':{count:32,tags:['agent-designer','rag-architect','mcp-server-builder','autoresearch-agent','ci-cd-pipeline','database-designer','api-design-reviewer']},
+  'Engineering Team':{count:23,tags:['senior-architect','senior-fullstack','senior-backend','senior-frontend','senior-qa','senior-devops','playwright-pro']},
+  'Marketing':{count:52,tags:['copywriting','seo-audit','content-strategy','paid-ads','email-sequence','launch-strategy','social-media-manager']},
+  'C-Level Advisor':{count:28,tags:['ceo-advisor','cto-advisor','cfo-advisor','board-meeting','strategic-alignment','founder-coach']},
+  'Product Team':{count:12,tags:['product-manager-toolkit','ux-researcher','competitive-teardown','landing-page-generator']},
+  'RA/QM Team':{count:12,tags:['regulatory-affairs','fda-specialist','iso-13485','gdpr-expert','risk-management']},
+  'Project Management':{count:7,tags:['senior-pm','scrum-master','jira-expert','confluence-expert']},
+  'Business Growth':{count:4,tags:['customer-success','sales-engineer','revenue-ops']},
+  'Finance':{count:2,tags:['financial-analyst','saas-metrics']}
+};
+
+const DEFAULT_IDEAS = [
+  {id:1,name:'AI Compliance Checker',niche:'fintech',stage:'discovered',score:94,desc:'Automatische Compliance-Pruefung fuer Schweizer Finanzinstitute mit AI. Erkennt Verstoesse gegen FINMA-Regulierungen in Echtzeit.',market:850,feasibility:90,uniqueness:88,timing:95},
+  {id:2,name:'AI Mietpreisoptimierung',niche:'proptech',stage:'discovered',score:88,desc:'AI-basierte Mietpreisanalyse und -optimierung fuer Schweizer Immobilienverwalter.',market:620,feasibility:85,uniqueness:80,timing:90},
+  {id:3,name:'SwissDoc AI Assistent',niche:'healthtech',stage:'discovered',score:85,desc:'AI-Assistent fuer Schweizer Aerzte — automatische Dokumentation, Diagnose-Support.',market:450,feasibility:75,uniqueness:82,timing:88},
+  {id:4,name:'KMU Buchhaltungs-AI',niche:'fintech',stage:'discovered',score:82,desc:'Vollautomatische Buchhaltung fuer Schweizer KMUs mit AI und MwSt-Compliance.',market:380,feasibility:88,uniqueness:72,timing:85},
+  {id:5,name:'AI Immobilien-Bewertung',niche:'proptech',stage:'researched',score:91,desc:'Praezise Immobilienbewertung mit AI fuer den Schweizer Markt.',market:720,feasibility:87,uniqueness:85,timing:92},
+  {id:6,name:'Legal Contract AI',niche:'legaltech',stage:'researched',score:87,desc:'AI-gestuetzte Vertragspruefung und -erstellung nach Schweizer Recht (OR/ZGB).',market:340,feasibility:82,uniqueness:90,timing:88},
+  {id:7,name:'AI Lernplattform CH',niche:'edtech',stage:'researched',score:79,desc:'Personalisierte Lernplattform mit AI-Tutor fuer Schweizer Bildungssystem.',market:280,feasibility:80,uniqueness:75,timing:82},
+  {id:8,name:'AI Supply Chain CH',niche:'logitech',stage:'validated',score:90,desc:'AI-optimierte Supply Chain fuer Schweizer Industrie und Pharma.',market:560,feasibility:83,uniqueness:88,timing:90},
+  {id:9,name:'Restaurant AI Manager',niche:'retailtech',stage:'validated',score:84,desc:'AI-gesteuertes Restaurant-Management: Bestell-Prognose, Personal, Einkauf.',market:200,feasibility:90,uniqueness:78,timing:82},
+  {id:10,name:'AI HR Recruiting CH',niche:'edtech',stage:'presented',score:86,desc:'AI-Recruiting-Plattform fuer den Schweizer Arbeitsmarkt mit CV-Matching.',market:420,feasibility:85,uniqueness:80,timing:88},
+  {id:11,name:'SkyFocus Live',niche:'sportstech',stage:'mvp',score:92,desc:'Focus & Ambient App mit Live-Flugsimulator-Streams fuer Produktivitaet.',market:180,feasibility:95,uniqueness:96,timing:90},
+  {id:12,name:'PAX Comfort',niche:'sportstech',stage:'mvp',score:88,desc:'Real-time Passenger Comfort Monitor fuer Microsoft Flight Simulator.',market:80,feasibility:92,uniqueness:94,timing:85}
+];
+
+// State
+let ideas = JSON.parse(localStorage.getItem('aoe-ideas')) || DEFAULT_IDEAS;
+let activityLog = JSON.parse(localStorage.getItem('aoe-activity')) || [
+  {text:'AI Opportunity Engine erstellt — 48 Skills, 4 Pods',color:'var(--green)',time:'Gerade eben'},
+  {text:'Skills-Central Katalog aktualisiert — 302 Skills',color:'var(--accent)',time:'Vor 5 Min'},
+  {text:'SkyFocus Live — MVP fertiggestellt',color:'var(--blue)',time:'Frueher'},
+  {text:'PAX Comfort — Launch Strategy erstellt',color:'var(--yellow)',time:'Frueher'}
+];
+let activeFilter = 'all';
+let nextId = ideas.length ? Math.max(...ideas.map(i=>i.id))+1 : 1;
+
+function save() {
+  localStorage.setItem('aoe-ideas', JSON.stringify(ideas));
+  localStorage.setItem('aoe-activity', JSON.stringify(activityLog));
+}
+
+function addLog(text, color='var(--green)') {
+  activityLog.unshift({text, color, time: new Date().toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'})});
+  if(activityLog.length > 50) activityLog.pop();
+  save();
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ===== NAVIGATION =====
+document.querySelectorAll('.sb-item[data-view]').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    const view = item.dataset.view;
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+view).classList.add('active');
+    render();
+  });
+});
+
+// ===== SEARCH =====
+document.getElementById('globalSearch').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase();
+  if(!q) { activeFilter='all'; render(); return; }
+  // Check if it matches an industry
+  const ind = INDUSTRIES.find(i => i.name.toLowerCase().includes(q) || i.id.includes(q));
+  if(ind) { activeFilter = ind.id; } else { activeFilter = 'search:'+q; }
+  render();
+});
+
+// ===== RENDER =====
+function getFiltered() {
+  if(activeFilter === 'all') return ideas;
+  if(activeFilter.startsWith('search:')) {
+    const q = activeFilter.slice(7);
+    return ideas.filter(i => i.name.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q) || i.niche.includes(q));
+  }
+  return ideas.filter(i => i.niche === activeFilter);
+}
+
+function renderStats() {
+  const f = getFiltered();
+  const topScore = f.length ? Math.max(...f.map(i=>i.score)) : 0;
+  const topIdea = f.find(i=>i.score===topScore);
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat" onclick="navigate('skills')"><div class="stat-label">Total Skills</div><div class="stat-val" style="color:var(--accent2)">302</div><div class="stat-sub">11 Kategorien + AI Engine</div></div>
+    <div class="stat" onclick="navigate('pipeline')"><div class="stat-label">Ideen in Pipeline</div><div class="stat-val" style="color:var(--green)">${ideas.length}</div><div class="stat-sub">${ideas.filter(i=>i.stage==='validated').length} validiert, ${ideas.filter(i=>i.stage==='presented').length} praesentiert, ${ideas.filter(i=>i.stage==='mvp').length} MVP</div></div>
+    <div class="stat" onclick="navigate('industries')"><div class="stat-label">Branchen gescannt</div><div class="stat-val" style="color:var(--blue)">${new Set(ideas.map(i=>i.niche)).size}</div><div class="stat-sub">von 12 Schweizer Branchen</div></div>
+    <div class="stat"><div class="stat-label">Top Opportunity Score</div><div class="stat-val" style="color:var(--red)">${topScore}</div><div class="stat-sub">${topIdea?topIdea.name:'—'}</div></div>
+  `;
+  document.getElementById('badgeIdeas').textContent = ideas.length + ' Ideen';
+  document.getElementById('sbPipeline').textContent = ideas.length;
+}
+
+function renderFilters(containerId) {
+  const niches = ['all', ...new Set(ideas.map(i=>i.niche))];
+  const c = document.getElementById(containerId);
+  if(!c) return;
+  c.innerHTML = niches.map(n => {
+    const label = n==='all' ? 'Alle' : INDUSTRIES.find(i=>i.id===n)?.name.split(' / ')[0] || n;
+    return `<button class="btn-sm ${activeFilter===n?'active':''}" onclick="setFilter('${n}')">${label}</button>`;
+  }).join('');
+}
+
+function renderKanban(containerId) {
+  const filtered = getFiltered();
+  const c = document.getElementById(containerId);
+  c.innerHTML = STAGES.map(stage => {
+    const cards = filtered.filter(i=>i.stage===stage);
+    return `<div class="kb-col" data-stage="${stage}" ondragover="ev(event)" ondrop="drop(event,'${stage}')">
+      <div class="kb-head">${STAGE_LABELS[stage]} <span class="kb-cnt">${cards.length}</span></div>
+      ${cards.sort((a,b)=>b.score-a.score).map(card => {
+        const clr = card.score>=90?'var(--green)':card.score>=80?'var(--accent2)':card.score>=70?'var(--yellow)':'var(--red)';
+        return `<div class="card" draggable="true" ondragstart="drag(event,${card.id})" onclick="openDetail(${card.id})">
+          <div class="card-actions"><button class="card-btn" onclick="event.stopPropagation();moveCard(${card.id},1)" title="Weiter">&#8594;</button><button class="card-btn" onclick="event.stopPropagation();delCard(${card.id})" title="Loeschen">&#10005;</button></div>
+          <div class="card-name">${card.name}</div>
+          <div class="card-niche">${INDUSTRIES.find(i=>i.id===card.niche)?.name||card.niche}</div>
+          <div class="card-score"><div class="card-bar"><div class="card-fill" style="width:${card.score}%;background:${clr}"></div></div><span class="card-num" style="color:${clr}">${card.score}</span></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderIndustries() {
+  const c = document.getElementById('indGrid');
+  c.innerHTML = INDUSTRIES.map(ind => {
+    const indIdeas = ideas.filter(i=>i.niche===ind.id);
+    const avg = indIdeas.length ? Math.round(indIdeas.reduce((s,i)=>s+i.score,0)/indIdeas.length) : 0;
+    return `<div class="ind-card ${activeFilter===ind.id?'active':''}" onclick="toggleIndustry('${ind.id}')">
+      <div class="ind-icon">${ind.icon}</div>
+      <div class="ind-name">${ind.name}</div>
+      <div class="ind-stats">${indIdeas.length} Ideen | Avg Score: ${avg||'—'}</div>
+      <div class="ind-bar"><div class="ind-fill" style="width:${avg}%;background:${ind.color}"></div></div>
+    </div>`;
+  }).join('');
+
+  // Detail panel
+  if(activeFilter !== 'all' && !activeFilter.startsWith('search:')) {
+    const ind = INDUSTRIES.find(i=>i.id===activeFilter);
+    const indIdeas = ideas.filter(i=>i.niche===activeFilter).sort((a,b)=>b.score-a.score);
+    document.getElementById('indDetail').style.display = 'block';
+    document.getElementById('indDetail').innerHTML = `<div class="chart-container" style="margin-top:18px">
+      <div class="chart-title">${ind.icon} ${ind.name} — ${indIdeas.length} Ideen</div>
+      ${indIdeas.map(idea => `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail(${idea.id})">
+        <span style="font-size:13px;font-weight:600;min-width:180px">${idea.name}</span>
+        <span style="font-size:10px;color:var(--text2);min-width:80px">${STAGE_LABELS[idea.stage]}</span>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:2px"><div style="height:100%;width:${idea.score}%;background:${ind.color};border-radius:2px"></div></div>
+        <span style="font-size:12px;font-weight:700;min-width:30px;text-align:right">${idea.score}</span>
+      </div>`).join('')}
+      <div style="margin-top:12px"><button class="btn-primary" onclick="openNewIdea('${activeFilter}')">+ Idee fuer ${ind.name}</button></div>
+    </div>`;
+  } else {
+    document.getElementById('indDetail').style.display = 'none';
+  }
+}
+
+function renderChart() {
+  const c = document.getElementById('dashChart');
+  const data = INDUSTRIES.map(ind => {
+    const n = ideas.filter(i=>i.niche===ind.id);
+    return {name:ind.name.split(' / ')[0], count:n.length, avg:n.length?Math.round(n.reduce((s,i)=>s+i.score,0)/n.length):0, color:ind.color};
+  }).sort((a,b)=>b.avg-a.avg);
+  const max = Math.max(...data.map(d=>d.avg),1);
+  c.innerHTML = `<div class="chart-container"><div class="chart-title">Score nach Branche</div><div class="bar-chart">
+    ${data.map(d=>`<div class="bar-item"><div class="bar-val" style="color:${d.color}">${d.avg||''}</div><div class="bar" style="height:${d.avg/max*100}%;background:${d.color};min-height:2px"></div><div class="bar-label">${d.name}</div></div>`).join('')}
+  </div></div>`;
+}
+
+function renderActivity(containerId, limit) {
+  const c = document.getElementById(containerId);
+  const items = limit ? activityLog.slice(0,limit) : activityLog;
+  c.innerHTML = `<div class="chart-container"><div class="activity-list">
+    ${items.map(a=>`<div class="act-item"><div class="act-dot" style="background:${a.color}"></div><div><div class="act-text">${a.text}</div><div class="act-time">${a.time}</div></div></div>`).join('')}
+    ${items.length===0?'<div style="text-align:center;padding:20px;color:var(--text3)">Noch keine Aktivitaeten</div>':''}
+  </div></div>`;
+}
+
+function renderSkills() {
+  const c = document.getElementById('skillPods');
+  c.innerHTML = Object.entries(SKILLS).map(([name,data]) => `<div class="pod-card">
+    <div class="pod-header"><span class="pod-name">${name}</span><span class="pod-count">${data.count} Skills</span></div>
+    <div class="skill-list">
+      ${data.tags.map(t=>`<span class="skill-chip">${t}</span>`).join('')}
+      ${data.senior?data.tags.slice(0,6).map(t=>`<span class="skill-chip senior">senior-${t}</span>`).join(''):''}
+      ${data.count > data.tags.length ? `<span class="skill-chip" style="color:var(--text3)">+${data.count-data.tags.length-(data.senior?6:0)} more</span>`:''}
+    </div>
+  </div>`).join('');
+}
+
+function render() {
+  renderStats();
+  renderFilters('dashFilters');
+  renderFilters('pipeFilters');
+  renderKanban('dashKanban');
+  renderKanban('pipeKanban');
+  renderIndustries();
+  renderChart();
+  renderActivity('dashActivity', 5);
+  renderActivity('fullActivity');
+  renderSkills();
+}
+
+// ===== INTERACTIONS =====
+function navigate(view) {
+  document.querySelectorAll('.sb-item').forEach(i=>{i.classList.remove('active');if(i.dataset.view===view)i.classList.add('active')});
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  render();
+}
+
+function setFilter(f) { activeFilter=f; render(); }
+function toggleIndustry(id) { activeFilter = activeFilter===id ? 'all' : id; render(); }
+
+// Drag & Drop
+let dragId = null;
+function drag(e,id) { dragId=id; e.dataTransfer.effectAllowed='move'; }
+function ev(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+document.addEventListener('dragover', e => document.querySelectorAll('.kb-col').forEach(c=>{ if(!c.contains(e.target)) c.classList.remove('drag-over'); }));
+function drop(e,stage) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  const idea = ideas.find(i=>i.id===dragId);
+  if(idea && idea.stage !== stage) {
+    const old = idea.stage;
+    idea.stage = stage;
+    save(); render();
+    addLog(`"${idea.name}" verschoben: ${STAGE_LABELS[old]} → ${STAGE_LABELS[stage]}`,'var(--accent)');
+    toast(`${idea.name} → ${STAGE_LABELS[stage]}`);
+  }
+}
+
+function moveCard(id, dir) {
+  const idea = ideas.find(i=>i.id===id);
+  if(!idea) return;
+  const idx = STAGES.indexOf(idea.stage);
+  const newIdx = idx + dir;
+  if(newIdx >= 0 && newIdx < STAGES.length) {
+    const old = idea.stage;
+    idea.stage = STAGES[newIdx];
+    save(); render();
+    addLog(`"${idea.name}" verschoben: ${STAGE_LABELS[old]} → ${STAGE_LABELS[idea.stage]}`,'var(--accent)');
+    toast(`${idea.name} → ${STAGE_LABELS[idea.stage]}`);
+  }
+}
+
+function delCard(id) {
+  const idea = ideas.find(i=>i.id===id);
+  if(!idea) return;
+  if(confirm(`"${idea.name}" wirklich loeschen?`)) {
+    ideas = ideas.filter(i=>i.id!==id);
+    save(); render();
+    addLog(`"${idea.name}" geloescht`,'var(--red)');
+    toast('Idee geloescht');
+  }
+}
+
+// ===== MODALS =====
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+document.getElementById('modalOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+function openNewIdea(preNiche) {
+  document.getElementById('modalTitle').textContent = 'Neue Idee erfassen';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="form-row"><label>Name</label><input id="f-name" placeholder="z.B. AI Compliance Checker"></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Branche</label><select id="f-niche">${INDUSTRIES.map(i=>`<option value="${i.id}" ${i.id===preNiche?'selected':''}>${i.name}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Score (1-100)</label><input id="f-score" type="number" min="1" max="100" value="75"></div>
+    </div>
+    <div class="form-row"><label>Beschreibung</label><textarea id="f-desc" placeholder="Was macht das Produkt? Welches Problem loest es?"></textarea></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Marktgroesse (CHF Mio.)</label><input id="f-market" type="number" value="100"></div>
+      <div class="form-row"><label>Feasibility (1-100)</label><input id="f-feas" type="number" min="1" max="100" value="80"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label>Uniqueness (1-100)</label><input id="f-uniq" type="number" min="1" max="100" value="80"></div>
+      <div class="form-row"><label>Timing (1-100)</label><input id="f-time" type="number" min="1" max="100" value="80"></div>
+    </div>
+  `;
+  document.getElementById('modalFooter').innerHTML = `<button class="btn-sm" onclick="closeModal()">Abbrechen</button><button class="btn-primary" onclick="saveNewIdea()">Idee speichern</button>`;
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('f-name').focus(),100);
+}
+
+function saveNewIdea() {
+  const name = document.getElementById('f-name').value.trim();
+  if(!name) { toast('Name ist Pflicht!'); return; }
+  const idea = {
+    id: nextId++,
+    name,
+    niche: document.getElementById('f-niche').value,
+    stage: 'discovered',
+    score: parseInt(document.getElementById('f-score').value)||75,
+    desc: document.getElementById('f-desc').value,
+    market: parseInt(document.getElementById('f-market').value)||100,
+    feasibility: parseInt(document.getElementById('f-feas').value)||80,
+    uniqueness: parseInt(document.getElementById('f-uniq').value)||80,
+    timing: parseInt(document.getElementById('f-time').value)||80
+  };
+  ideas.push(idea);
+  save(); render(); closeModal();
+  addLog(`Neue Idee: "${name}" (Score: ${idea.score})`,'var(--green)');
+  toast(`"${name}" hinzugefuegt!`);
+}
+
+function openDetail(id) {
+  const idea = ideas.find(i=>i.id===id);
+  if(!idea) return;
+  const ind = INDUSTRIES.find(i=>i.id===idea.niche);
+  const clr = idea.score>=90?'var(--green)':idea.score>=80?'var(--accent2)':idea.score>=70?'var(--yellow)':'var(--red)';
+  document.getElementById('modalTitle').textContent = idea.name;
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <span class="badge" style="border-color:${ind?.color||'var(--border)'};color:${ind?.color||'var(--text2)'}">${ind?.icon||''} ${ind?.name||idea.niche}</span>
+      <span class="badge">${STAGE_LABELS[idea.stage]}</span>
+      <span class="badge" style="border-color:${clr};color:${clr}">Score: ${idea.score}/100</span>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'tab-overview')">Uebersicht</div>
+      <div class="tab" onclick="switchTab(this,'tab-scores')">Scores</div>
+      <div class="tab" onclick="switchTab(this,'tab-edit')">Bearbeiten</div>
+      <div class="tab" onclick="switchTab(this,'tab-actions')">Aktionen</div>
+    </div>
+    <div class="tab-panel active" id="tab-overview">
+      <p style="font-size:13px;line-height:1.6;color:var(--text2);margin-bottom:16px">${idea.desc||'Keine Beschreibung vorhanden.'}</p>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px"><div style="font-size:10px;color:var(--text3)">Marktgroesse</div><div style="font-size:20px;font-weight:700;color:var(--blue)">CHF ${idea.market||'?'}M</div></div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px"><div style="font-size:10px;color:var(--text3)">Stage</div><div style="font-size:20px;font-weight:700;color:var(--accent2)">${STAGE_LABELS[idea.stage]}</div></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-scores">
+      <div class="score-grid">
+        <div class="score-item"><div class="val" style="color:${clr}">${idea.score}</div><div class="lbl">Gesamt-Score</div></div>
+        <div class="score-item"><div class="val" style="color:var(--blue)">${idea.feasibility||'—'}</div><div class="lbl">Feasibility</div></div>
+        <div class="score-item"><div class="val" style="color:var(--accent2)">${idea.uniqueness||'—'}</div><div class="lbl">Uniqueness</div></div>
+        <div class="score-item"><div class="val" style="color:var(--green)">${idea.timing||'—'}</div><div class="lbl">Timing</div></div>
+        <div class="score-item"><div class="val" style="color:var(--yellow)">CHF ${idea.market||'?'}M</div><div class="lbl">TAM (Schweiz)</div></div>
+        <div class="score-item"><div class="val" style="color:var(--pink)">${Math.round((idea.feasibility+idea.uniqueness+idea.timing)/3)||'—'}</div><div class="lbl">Avg Dimension</div></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-edit">
+      <div class="form-row"><label>Name</label><input id="e-name" value="${idea.name}"></div>
+      <div class="form-grid">
+        <div class="form-row"><label>Branche</label><select id="e-niche">${INDUSTRIES.map(i=>`<option value="${i.id}" ${i.id===idea.niche?'selected':''}>${i.name}</option>`).join('')}</select></div>
+        <div class="form-row"><label>Score</label><input id="e-score" type="number" value="${idea.score}"></div>
+      </div>
+      <div class="form-row"><label>Beschreibung</label><textarea id="e-desc">${idea.desc||''}</textarea></div>
+      <div class="form-grid">
+        <div class="form-row"><label>Markt (CHF Mio.)</label><input id="e-market" type="number" value="${idea.market||0}"></div>
+        <div class="form-row"><label>Feasibility</label><input id="e-feas" type="number" value="${idea.feasibility||0}"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-row"><label>Uniqueness</label><input id="e-uniq" type="number" value="${idea.uniqueness||0}"></div>
+        <div class="form-row"><label>Timing</label><input id="e-time" type="number" value="${idea.timing||0}"></div>
+      </div>
+      <button class="btn-primary" style="margin-top:12px" onclick="saveEdit(${idea.id})">Speichern</button>
+    </div>
+    <div class="tab-panel" id="tab-actions">
+      <div style="display:grid;gap:8px">
+        <button class="btn-sm" style="padding:12px;text-align:left" onclick="runAction('deep-dive','${idea.name}')">&#128200; Deep Dive starten — Voller Market Research + Validation</button>
+        <button class="btn-sm" style="padding:12px;text-align:left" onclick="runAction('present','${idea.name}')">&#127912; Praesentieren — Mockups, Demo, Pitch Deck erstellen</button>
+        <button class="btn-sm" style="padding:12px;text-align:left" onclick="runAction('build-mvp','${idea.name}')">&#128187; MVP bauen — Funktionierendes MVP generieren</button>
+        <button class="btn-sm" style="padding:12px;text-align:left" onclick="runAction('full-pipeline','${idea.name}')">&#128640; Full Pipeline — Alles von Research bis MVP</button>
+        <hr style="border-color:var(--border)">
+        <div style="display:flex;gap:8px">
+          ${STAGES.map(s=>`<button class="btn-sm ${idea.stage===s?'active':''}" onclick="setStage(${idea.id},'${s}')">${STAGE_LABELS[s]}</button>`).join('')}
+        </div>
+        <hr style="border-color:var(--border)">
+        <button class="btn-sm" style="padding:12px;color:var(--red);border-color:var(--red)" onclick="if(confirm('Loeschen?')){delCard(${idea.id});closeModal()}">&#10005; Idee loeschen</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('modalFooter').innerHTML = `<button class="btn-sm" onclick="closeModal()">Schliessen</button>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function switchTab(el, panelId) {
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  el.parentElement.parentElement.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+}
+
+function saveEdit(id) {
+  const idea = ideas.find(i=>i.id===id);
+  if(!idea) return;
+  idea.name = document.getElementById('e-name').value.trim() || idea.name;
+  idea.niche = document.getElementById('e-niche').value;
+  idea.score = parseInt(document.getElementById('e-score').value) || idea.score;
+  idea.desc = document.getElementById('e-desc').value;
+  idea.market = parseInt(document.getElementById('e-market').value) || 0;
+  idea.feasibility = parseInt(document.getElementById('e-feas').value) || 0;
+  idea.uniqueness = parseInt(document.getElementById('e-uniq').value) || 0;
+  idea.timing = parseInt(document.getElementById('e-time').value) || 0;
+  save(); render(); closeModal();
+  addLog(`"${idea.name}" aktualisiert`,'var(--accent)');
+  toast('Idee gespeichert!');
+}
+
+function setStage(id, stage) {
+  const idea = ideas.find(i=>i.id===id);
+  if(!idea) return;
+  const old = idea.stage;
+  idea.stage = stage;
+  save(); render();
+  addLog(`"${idea.name}" → ${STAGE_LABELS[stage]}`,'var(--accent)');
+  toast(`${idea.name} → ${STAGE_LABELS[stage]}`);
+  openDetail(id);
+}
+
+// ===== QUICK COMMANDS =====
+function quickCmd(cmd) {
+  const input = prompt(`/${cmd}\n\nGib den Parameter ein (Nische oder Idee-Name):`, '');
+  if(input === null) return;
+  runAction(cmd, input);
+}
+
+function runAction(cmd, param) {
+  closeModal();
+  const msg = `/${cmd} ${param}`.trim();
+  addLog(`Command ausgefuehrt: ${msg}`, 'var(--blue)');
+  toast(`Kopiert: ${msg}`);
+
+  // Copy to clipboard
+  navigator.clipboard?.writeText(msg).catch(()=>{});
+
+  // Show command modal
+  document.getElementById('modalTitle').textContent = `Command: /${cmd}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;font-family:'SF Mono',monospace;font-size:14px;color:var(--green);margin-bottom:16px">
+      <span style="color:var(--text3)">$</span> ${msg}
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Fuehre diesen Command in Claude Code aus:</p>
+    <ol style="font-size:13px;color:var(--text2);padding-left:20px;line-height:2">
+      <li>Oeffne Claude Code im Terminal oder VS Code</li>
+      <li>Tippe: <code style="background:var(--surface2);padding:2px 6px;border-radius:3px;color:var(--accent2)">${msg}</code></li>
+      <li>Der AI Opportunity Engine Orchestrator startet automatisch</li>
+    </ol>
+    <div style="margin-top:16px;padding:12px;background:var(--accent-bg);border-radius:var(--radius-sm);font-size:12px;color:var(--accent2)">
+      Der Command wurde in die Zwischenablage kopiert.
+    </div>
+  `;
+  document.getElementById('modalFooter').innerHTML = `<button class="btn-sm" onclick="closeModal()">Schliessen</button>`;
+  document.getElementById('modalOverlay').classList.add('open');
+  render();
+}
+
+function showPod(pod) {
+  navigate('skills');
+  toast(`${pod.charAt(0).toUpperCase()+pod.slice(1)} Pod angezeigt`);
+}
+
+function scanAllIndustries() {
+  toast('Branchen-Scan gestartet...');
+  addLog('Branchen-Scan fuer alle 12 Schweizer Industrien gestartet','var(--blue)');
+  // Animate bars
+  document.querySelectorAll('.ind-fill').forEach((bar,i) => {
+    bar.style.width = '0%';
+    setTimeout(()=>{ bar.style.width = bar.parentElement.parentElement.querySelector('.ind-stats').textContent.match(/\d+(?=%)|Avg Score: (\d+)/)?.[1]+'%' || '50%'; }, i*100);
+  });
+  setTimeout(()=>toast('Scan abgeschlossen!'), INDUSTRIES.length*100+500);
+}
+
+function clearActivity() {
+  if(confirm('Aktivitaeten-Log leeren?')) {
+    activityLog = [];
+    save(); render();
+    toast('Log geleert');
+  }
+}
+
+// ===== INIT =====
+render();
+</script>
+</body>
+</html>

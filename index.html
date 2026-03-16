@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astro — Project Hub</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    .header {
+      text-align: center;
+      padding: 3rem 1rem 2rem;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .header h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .header p { color: #888; font-size: 0.95rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .card {
+      background: linear-gradient(145deg, #1a1a2e, #151525);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(102, 126, 234, 0.4);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
+    }
+    .card-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .card h2 { font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff; }
+    .card p { font-size: 0.85rem; color: #888; line-height: 1.5; }
+    .card .tag {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      margin-top: 0.75rem;
+      font-weight: 600;
+    }
+    .tag-static { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .tag-react { background: rgba(59,130,246,0.15); color: #3b82f6; }
+    .tag-nextjs { background: rgba(168,85,247,0.15); color: #a855f7; }
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: #555;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Astro Project Hub</h1>
+    <p>Live Demos aller Projekte</p>
+  </div>
+  <div class="grid">
+    <a class="card" href="skyfocus-dashboard/">
+      <div class="card-emoji">✈️</div>
+      <h2>SkyFocus Live Dashboard</h2>
+      <p>Master Dashboard mit Real-Time Metrics, Kanban Board und Charts</p>
+      <span class="tag tag-static">Static HTML</span>
+    </a>
+    <a class="card" href="skyfocus-project/">
+      <div class="card-emoji">📊</div>
+      <h2>SkyFocus Project Dashboard</h2>
+      <p>Projekt-Dashboard mit Navigation, Stats und Kanban</p>
+      <span class="tag tag-static">Static HTML</span>
+    </a>
+    <a class="card" href="velora-landing/">
+      <div class="card-emoji">🏠</div>
+      <h2>Velora Landing Page</h2>
+      <p>Conversion-optimierte Landing Page für PropTech SaaS</p>
+      <span class="tag tag-static">Static HTML</span>
+    </a>
+    <a class="card" href="velora-dashboard/">
+      <div class="card-emoji">📋</div>
+      <h2>Velora CRM Dashboard</h2>
+      <p>CRM Dashboard für Immobilien-Verwaltung</p>
+      <span class="tag tag-static">Static HTML</span>
+    </a>
+    <a class="card" href="skills-dashboard/">
+      <div class="card-emoji">🧠</div>
+      <h2>Skills-Central Dashboard</h2>
+      <p>AI Opportunity Engine — Kanban, Stats, Search</p>
+      <span class="tag tag-static">Static HTML</span>
+    </a>
+    <a class="card" href="skyfocus-app/">
+      <div class="card-emoji">🗺️</div>
+      <h2>SkyFocus App (Mapbox)</h2>
+      <p>VATSIM Flight Tracker mit Mapbox GL</p>
+      <span class="tag tag-react">React/Vite</span>
+    </a>
+    <a class="card" href="wetten/">
+      <div class="card-emoji">⚽</div>
+      <h2>Wetten Dashboard</h2>
+      <p>Betting System mit Charts und Predictions</p>
+      <span class="tag tag-react">React/Vite</span>
+    </a>
+  </div>
+  <div class="footer">
+    Astro Project Hub — Powered by GitHub Pages
+  </div>
+</body>
+</html>

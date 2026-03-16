@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyFocus Live - Project Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --bg-card-hover: #222233;
+            --border: #2a2a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #8888aa;
+            --text-muted: #555566;
+            --green: #4ade80;
+            --blue: #60a5fa;
+            --cyan: #22d3ee;
+            --purple: #a78bfa;
+            --amber: #fbbf24;
+            --red: #f87171;
+            --pink: #f472b6;
+            --gradient-glow: linear-gradient(135deg, #4ade80, #22d3ee, #a78bfa, #f472b6);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            padding: 40px 40px 0;
+            position: relative;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .app-name {
+            font-size: 14px;
+            font-family: 'DM Mono', monospace;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .header-date {
+            font-size: 13px;
+            font-family: 'DM Mono', monospace;
+            color: var(--text-muted);
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            background: var(--gradient-glow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            animation: glow-shift 4s ease-in-out infinite;
+        }
+
+        @keyframes glow-shift {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            max-width: 600px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 24px;
+            padding: 24px 40px;
+            margin-top: 24px;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0;
+            padding: 0 40px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 16px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover { color: var(--text-secondary); }
+        .tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--green);
+        }
+
+        /* Tab Content */
+        .tab-content { display: none; padding: 32px 40px; }
+        .tab-content.active { display: block; }
+
+        /* Phase Cards */
+        .phases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .phase-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phase-card:hover {
+            background: var(--bg-card-hover);
+            border-color: #3a3a5a;
+            transform: translateY(-2px);
+        }
+
+        .phase-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .phase-card.phase-0::before { background: var(--green); }
+        .phase-card.phase-1::before { background: var(--blue); }
+        .phase-card.phase-2::before { background: var(--cyan); }
+        .phase-card.phase-3::before { background: var(--purple); }
+        .phase-card.phase-4::before { background: var(--amber); }
+        .phase-card.phase-5::before { background: var(--pink); }
+
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .phase-number {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .phase-status {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .status-active { background: rgba(74, 222, 128, 0.15); color: var(--green); }
+        .status-pending { background: rgba(136, 136, 170, 0.15); color: var(--text-secondary); }
+        .status-future { background: rgba(85, 85, 102, 0.1); color: var(--text-muted); }
+
+        .phase-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .phase-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 1s ease;
+        }
+
+        .phase-0 .progress-fill { background: var(--green); }
+        .phase-1 .progress-fill { background: var(--blue); }
+        .phase-2 .progress-fill { background: var(--cyan); }
+        .phase-3 .progress-fill { background: var(--purple); }
+        .phase-4 .progress-fill { background: var(--amber); }
+        .phase-5 .progress-fill { background: var(--pink); }
+
+        .progress-label {
+            font-size: 12px;
+            font-family: 'DM Mono', monospace;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .phase-tasks {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .phase-tasks li {
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 6px 0;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .task-dot.done { background: var(--green); }
+        .task-dot.active { background: var(--blue); animation: pulse 2s infinite; }
+        .task-dot.pending { background: var(--text-muted); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Mockups Section */
+        .mockups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .mockup-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .mockup-card:hover {
+            border-color: var(--blue);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(96, 165, 250, 0.1);
+        }
+
+        .mockup-preview {
+            height: 280px;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mockup-phone {
+            width: 140px;
+            height: 250px;
+            background: #000;
+            border-radius: 20px;
+            border: 2px solid #333;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .phone-notch {
+            width: 60px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            margin: 0 auto 8px;
+        }
+
+        .phone-content {
+            flex: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .mockup-info {
+            padding: 12px 16px;
+        }
+
+        .mockup-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .mockup-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .mockup-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 6px;
+            display: inline-block;
+        }
+
+        .badge-free { background: rgba(74, 222, 128, 0.15); color: var(--green); }
+        .badge-pro { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
+        .badge-onboarding { background: rgba(96, 165, 250, 0.15); color: var(--blue); }
+
+        /* Features Table */
+        .features-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .features-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .features-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .features-table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .check { color: var(--green); font-weight: 700; }
+        .cross { color: var(--text-muted); }
+
+        /* Tech Stack */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .tech-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tech-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .tech-name { font-size: 14px; font-weight: 600; }
+        .tech-role { font-size: 11px; color: var(--text-muted); }
+
+        /* Design System Preview */
+        .color-swatches {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .swatch {
+            width: 80px;
+            text-align: center;
+        }
+
+        .swatch-color {
+            width: 80px;
+            height: 60px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .swatch-name { font-size: 11px; color: var(--text-secondary); }
+        .swatch-hex { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text-muted); }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-header span {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Mini mockup content styles */
+        .mini-text { font-size: 6px; color: var(--text-secondary); text-align: center; }
+        .mini-title { font-size: 8px; font-weight: 700; color: white; text-align: center; margin-bottom: 4px; }
+        .mini-btn {
+            font-size: 6px;
+            background: white;
+            color: black;
+            padding: 3px 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+        .mini-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--green);
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .mini-map {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0d1b2a 0%, #1b2838 100%);
+            border-radius: 8px;
+            position: relative;
+        }
+        .mini-plane {
+            position: absolute;
+            font-size: 10px;
+            filter: brightness(2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header { padding: 24px 20px 0; }
+            .header h1 { font-size: 32px; }
+            .stats-bar { padding: 20px; }
+            .tabs { padding: 0 20px; overflow-x: auto; }
+            .tab-content { padding: 24px 20px; }
+            .phases-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="app-name">SkyFocus Live</div>
+            <div class="header-date" id="currentDate"></div>
+        </div>
+        <h1>Project Dashboard</h1>
+        <p>Beobachte Flugsimulator-Piloten live um die Welt fliegen. Finde deinen Fokus. Entspanne.</p>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-value" style="color: var(--green)">6</div>
+            <div class="stat-label">Phasen</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" style="color: var(--blue)">12</div>
+            <div class="stat-label">Screens</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" style="color: var(--cyan)">24</div>
+            <div class="stat-label">Features</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" style="color: var(--purple)">14</div>
+            <div class="stat-label">Animationen</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" style="color: var(--amber)">0%</div>
+            <div class="stat-label">Fortschritt</div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('phases')">Phasen</div>
+        <div class="tab" onclick="switchTab('mockups')">Mockups</div>
+        <div class="tab" onclick="switchTab('features')">Features</div>
+        <div class="tab" onclick="switchTab('design')">Design System</div>
+        <div class="tab" onclick="switchTab('tech')">Tech Stack</div>
+    </div>
+
+    <!-- PHASEN -->
+    <div class="tab-content active" id="tab-phases">
+        <div class="phases-grid">
+            <div class="phase-card phase-0">
+                <div class="phase-header">
+                    <div class="phase-number">PHASE 0</div>
+                    <div class="phase-status status-active">In Arbeit</div>
+                </div>
+                <div class="phase-title">Projekt-Setup & Skills</div>
+                <div class="phase-desc">Skills aktivieren, HTML-Dashboard erstellen, Projektstruktur aufbauen</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div>
+                <div class="progress-label">30%</div>
+                <ul class="phase-tasks">
+                    <li><span class="task-dot done"></span>Projektordner erstellt</li>
+                    <li><span class="task-dot active"></span>HTML Dashboard</li>
+                    <li><span class="task-dot pending"></span>Skills aktivieren</li>
+                    <li><span class="task-dot pending"></span>PRD generieren</li>
+                </ul>
+            </div>
+
+            <div class="phase-card phase-1">
+                <div class="phase-header">
+                    <div class="phase-number">PHASE 1</div>
+                    <div class="phase-status status-pending">Ausstehend</div>
+                </div>
+                <div class="phase-title">Konzept & Design</div>
+                <div class="phase-desc">Interaktive HTML Mockups aller Screens mit Animationen, Design System, PRD</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-label">0%</div>
+                <ul class="phase-tasks">
+                    <li><span class="task-dot pending"></span>Onboarding Mockups (5 Screens)</li>
+                    <li><span class="task-dot pending"></span>Live Map Mockup</li>
+                    <li><span class="task-dot pending"></span>Flight Detail Mockup</li>
+                    <li><span class="task-dot pending"></span>Paywall Mockup</li>
+                    <li><span class="task-dot pending"></span>Design Tokens</li>
+                </ul>
+            </div>
+
+            <div class="phase-card phase-2">
+                <div class="phase-header">
+                    <div class="phase-number">PHASE 2</div>
+                    <div class="phase-status status-future">Geplant</div>
+                </div>
+                <div class="phase-title">Technische Architektur</div>
+                <div class="phase-desc">React Setup, Mapbox Integration, VATSIM API, Design Token System</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-label">0%</div>
+                <ul class="phase-tasks">
+                    <li><span class="task-dot pending"></span>Vite + React + Tailwind</li>
+                    <li><span class="task-dot pending"></span>Mapbox GL JS Setup</li>
+                    <li><span class="task-dot pending"></span>VATSIM API Proxy</li>
+                    <li><span class="task-dot pending"></span>State Management</li>
+                </ul>
+            </div>
+
+            <div class="phase-card phase-3">
+                <div class="phase-header">
+                    <div class="phase-number">PHASE 3</div>
+                    <div class="phase-status status-future">Geplant</div>
+                </div>
+                <div class="phase-title">MVP Development</div>
+                <div class="phase-desc">Funktionierende Free-Version mit Live Map, Flight Details und Onboarding</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-label">0%</div>
+                <ul class="phase-tasks">
+                    <li><span class="task-dot pending"></span>Onboarding Flow</li>
+                    <li><span class="task-dot pending"></span>Live Map + Flights</li>
+                    <li><span class="task-dot pending"></span>Flight Detail Sheet</li>
+                    <li><span class="task-dot pending"></span>PWA + Responsive</li>
+                </ul>
+            </div>
+
+            <div class="phase-card phase-4">
+                <div class="phase-header">
+                    <div class="phase-number">PHASE 4</div>
+                    <div class="phase-status status-future">Geplant</div>
+                </div>
+                <div class="phase-title">Pro Version</div>
+                <div class="phase-desc">Premium Features: Map Themes, Alerts, Statistiken, Paywall</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-label">0%</div>
+                <ul class="phase-tasks">
+                    <li><span class="task-dot pending"></span>Paywall + Pricing</li>
+                    <li><span class="task-dot pending"></span>Premium Map Themes</li>
+                    <li><span class="task-dot pending"></span>Advanced Filters</li>
+                    <li><span class="task-dot pending"></span>Statistiken & Heatmaps</li>
+                </ul>
+            </div>
+
+            <div class="phase-card phase-5">
+                <div class="phase-header">
+                    <div class="phase-number">PHASE 5</div>
+                    <div class="phase-status status-future">Zukunft</div>
+                </div>
+                <div class="phase-title">Livestreaming</div>
+                <div class="phase-desc">Twitch/YouTube Embedding, Pilot-Monetarisierung, Multi-Perspektive</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-label">0%</div>
+                <ul class="phase-tasks">
+                    <li><span class="task-dot pending"></span>Stream Embedding</li>
+                    <li><span class="task-dot pending"></span>Pilot CID Linking</li>
+                    <li><span class="task-dot pending"></span>Tips & Subscriptions</li>
+                    <li><span class="task-dot pending"></span>Multi-Cam Viewer</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOCKUPS -->
+    <div class="tab-content" id="tab-mockups">
+        <div class="section-header">Screen Mockups <span>12 Screens geplant</span></div>
+        <div class="mockups-grid">
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: #0a0a0f;">
+                            <div class="mini-title" style="font-size: 7px; margin-bottom: 12px;">Willkommen<br>an Bord! 👋</div>
+                            <div class="mini-text">Deine Reise beginnt hier.</div>
+                            <div class="mini-btn">Hallo!</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Welcome</div>
+                    <div class="mockup-desc">Splash Screen mit Begruessung</div>
+                    <div class="mockup-badge badge-onboarding">Onboarding</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: #0a0a0f;">
+                            <div class="mini-text" style="opacity: 0.4; margin-bottom: 8px;">Wolltest du wissen...</div>
+                            <div class="mini-title" style="font-size: 9px; background: linear-gradient(90deg, #4ade80, #22d3ee, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SkyFocus Live</div>
+                            <div class="mini-btn">Los geht's!</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">App Reveal</div>
+                    <div class="mockup-desc">Aurora GLOW Effekt</div>
+                    <div class="mockup-badge badge-onboarding">Onboarding</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: #0a0a0f;">
+                            <div style="background: var(--bg-card); border-radius: 6px; padding: 6px; width: 100%;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="font-size: 8px; font-weight: 700;">BAW178</span>
+                                    <span style="font-size: 8px; font-weight: 700;">EGLL</span>
+                                </div>
+                                <div style="font-size: 5px; color: var(--text-muted); margin-top: 2px;">KJFK &rarr; EGLL</div>
+                                <div style="height: 2px; background: var(--border); border-radius: 1px; margin-top: 4px;">
+                                    <div style="height: 2px; width: 60%; background: var(--blue); border-radius: 1px;"></div>
+                                </div>
+                            </div>
+                            <div class="mini-text" style="margin-top: 6px;">Verfolge jeden Flug</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Flight Card</div>
+                    <div class="mockup-desc">VATSIM Flight Card Preview</div>
+                    <div class="mockup-badge badge-onboarding">Onboarding</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: radial-gradient(circle at center, #1a3050 0%, #0a0a0f 100%);">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--cyan); opacity: 0.6; margin-bottom: 6px;"></div>
+                            <div class="mini-title" style="font-size: 6px;">Kartenstil</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 80%; margin-top: 4px;">
+                                <div style="height: 18px; background: #1a1a2a; border-radius: 3px; border: 1px solid var(--border);"></div>
+                                <div style="height: 18px; background: #0a0a1a; border-radius: 3px; border: 1px solid white;"></div>
+                                <div style="height: 18px; background: #1a3050; border-radius: 3px; border: 1px solid var(--border);"></div>
+                                <div style="height: 18px; background: #2a4a3a; border-radius: 3px; border: 1px solid var(--border);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Map Style</div>
+                    <div class="mockup-desc">3D Globus + 4 Kartenstile</div>
+                    <div class="mockup-badge badge-onboarding">Onboarding</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content mini-map">
+                            <span class="mini-plane" style="top: 20%; left: 30%; transform: rotate(45deg);">&#9992;</span>
+                            <span class="mini-plane" style="top: 40%; left: 60%; transform: rotate(-30deg);">&#9992;</span>
+                            <span class="mini-plane" style="top: 60%; left: 45%; transform: rotate(120deg);">&#9992;</span>
+                            <span class="mini-plane" style="top: 35%; left: 75%; transform: rotate(80deg);">&#9992;</span>
+                            <span class="mini-plane" style="top: 70%; left: 25%; transform: rotate(-60deg);">&#9992;</span>
+                            <div style="position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 4px;">
+                                <span style="font-size: 5px; color: var(--green);">1,247 live</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Live Map</div>
+                    <div class="mockup-desc">Hauptscreen - Alle VATSIM Fluege</div>
+                    <div class="mockup-badge badge-free">Free</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: #0d1b2a; justify-content: flex-end;">
+                            <div style="width: 100%; background: var(--bg-card); border-radius: 8px 8px 0 0; padding: 6px;">
+                                <div style="width: 20px; height: 2px; background: var(--text-muted); border-radius: 1px; margin: 0 auto 4px;"></div>
+                                <div style="font-size: 8px; font-weight: 700;">BAW178</div>
+                                <div style="font-size: 5px; color: var(--text-muted);">B772 &middot; 565 kt &middot; FL390</div>
+                                <div style="height: 2px; background: var(--border); border-radius: 1px; margin-top: 4px;">
+                                    <div style="height: 2px; width: 60%; background: var(--blue); border-radius: 1px;"></div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                                    <span style="font-size: 6px; font-weight: 700;">KJFK</span>
+                                    <span style="font-size: 6px; font-weight: 700;">EGLL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Flight Detail</div>
+                    <div class="mockup-desc">Bottom Sheet mit Live-Daten</div>
+                    <div class="mockup-badge badge-free">Free</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: #0d1b2a;">
+                            <div style="width: 6px; height: 6px; background: var(--red); border-radius: 50%; margin-bottom: 4px;"></div>
+                            <div style="width: 60%; height: 1px; background: var(--pink); margin-bottom: 2px;"></div>
+                            <div style="width: 40%; height: 1px; background: var(--text-muted); border-style: dashed; margin-bottom: 8px;"></div>
+                            <div class="mini-text">Route Visualization</div>
+                            <div class="mini-text" style="color: var(--pink);">Magenta = vergangen</div>
+                            <div class="mini-text" style="color: var(--text-muted);">Gestrichelt = geplant</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Flight Route</div>
+                    <div class="mockup-desc">Route auf Map mit Track</div>
+                    <div class="mockup-badge badge-free">Free</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: #0a0a0f;">
+                            <div style="width: 100%; height: 50px; border: 1px solid var(--border); border-radius: 6px; padding: 4px; margin-bottom: 4px;">
+                                <div style="font-size: 5px; color: var(--text-muted);">Altitude</div>
+                                <div style="height: 1px; background: var(--blue); width: 80%; margin-top: 12px;"></div>
+                                <div style="height: 1px; background: var(--green); width: 80%; margin-top: 4px;"></div>
+                            </div>
+                            <div class="mini-text">Alt & Speed Graph</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Altitude Graph</div>
+                    <div class="mockup-desc">Aufklappbarer Chart</div>
+                    <div class="mockup-badge badge-pro">Pro</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: #0a0a0f;">
+                            <div style="width: 40px; height: 50px; border-radius: 12px 12px 4px 4px; border: 2px solid #555; background: linear-gradient(180deg, #ff9a5c 0%, #d4a0d0 50%, #87ceeb 100%); margin-bottom: 6px;"></div>
+                            <div class="mini-title" style="font-size: 6px;">Fensteransicht</div>
+                            <div style="display: flex; gap: 4px; margin-top: 6px;">
+                                <div style="font-size: 5px; border: 1px solid var(--amber); color: var(--amber); padding: 1px 4px; border-radius: 4px;">CHF 25</div>
+                                <div style="font-size: 5px; background: white; color: black; padding: 1px 4px; border-radius: 4px;">CHF 15/y</div>
+                                <div style="font-size: 5px; border: 1px solid var(--amber); color: var(--amber); padding: 1px 4px; border-radius: 4px;">CHF 3/m</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Paywall</div>
+                    <div class="mockup-desc">Feature Carousel + Pricing</div>
+                    <div class="mockup-badge badge-pro">Pro</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: #0a0a0f;">
+                            <div style="width: 45px; height: 45px; border-radius: 50%; border: 3px solid var(--green); border-right-color: transparent; margin-bottom: 4px; display: flex; align-items: center; justify-content: center;">
+                                <span style="font-size: 7px; font-family: 'DM Mono'; color: var(--green);">+30%</span>
+                            </div>
+                            <div class="mini-title" style="font-size: 6px;">Statistiken</div>
+                            <div class="mini-text">Heatmaps & Analytics</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Statistics</div>
+                    <div class="mockup-desc">Tracking & Heatmaps</div>
+                    <div class="mockup-badge badge-pro">Pro</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: #0a0a0f;">
+                            <div style="background: var(--bg-card); border-radius: 6px; padding: 6px; width: 90%; margin-bottom: 4px;">
+                                <div style="font-size: 6px; font-weight: 700;">British Airways</div>
+                                <div style="font-size: 5px; color: var(--text-muted);">BAW / BA</div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 3px;">
+                                    <span style="font-size: 5px; color: var(--text-muted);">UK</span>
+                                    <span style="font-size: 5px; color: var(--cyan);">SPEEDBIRD</span>
+                                </div>
+                            </div>
+                            <div style="background: var(--bg-card); border-radius: 6px; padding: 6px; width: 90%;">
+                                <div style="font-size: 5px; color: var(--text-muted);">CID 1159355</div>
+                                <div style="font-size: 5px; color: var(--blue); margin-top: 2px;">Add to Friends</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Pilot Info</div>
+                    <div class="mockup-desc">Operator, CID, Social</div>
+                    <div class="mockup-badge badge-free">Free</div>
+                </div>
+            </div>
+
+            <div class="mockup-card">
+                <div class="mockup-preview">
+                    <div class="mockup-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-content" style="background: #0a0a0f;">
+                            <div style="background: var(--bg-card); border-radius: 6px; padding: 6px; width: 90%; text-align: center; border: 1px dashed var(--pink);">
+                                <div style="font-size: 18px; font-weight: 700; color: var(--pink);">-48%</div>
+                                <div style="font-size: 6px; color: var(--text-muted); margin-top: 2px;">CHF 25.00</div>
+                                <div style="height: 8px; background: repeating-linear-gradient(90deg, #333 0px, #333 2px, transparent 2px, transparent 4px); margin-top: 4px;"></div>
+                            </div>
+                            <div style="font-size: 5px; color: var(--amber); margin-top: 4px;">59:58 verbleibend</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mockup-info">
+                    <div class="mockup-name">Rabatt Coupon</div>
+                    <div class="mockup-desc">Ticket-Design mit Timer</div>
+                    <div class="mockup-badge badge-pro">Pro</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="tab-content" id="tab-features">
+        <div class="section-header">Free vs Pro <span>Feature Matrix</span></div>
+        <table class="features-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Free</th>
+                    <th>Pro</th>
+                    <th>Prioritaet</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Live Map mit allen VATSIM-Fluegen</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td style="color:var(--red)">P0</td></tr>
+                <tr><td>Flight Detail Bottom Sheet</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td style="color:var(--red)">P0</td></tr>
+                <tr><td>Route Visualization (Magenta Track)</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td style="color:var(--red)">P0</td></tr>
+                <tr><td>Pilot/Connection Info (CID, Server)</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td style="color:var(--red)">P0</td></tr>
+                <tr><td>Airline Logos & Operator Info</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td style="color:var(--amber)">P1</td></tr>
+                <tr><td>Basic Filter (Airline)</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td style="color:var(--amber)">P1</td></tr>
+                <tr><td>Dark Map Theme (Standard)</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td style="color:var(--red)">P0</td></tr>
+                <tr><td>ATC Stations & Airspace</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td style="color:var(--amber)">P1</td></tr>
+                <tr><td>Add to Friends</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td style="color:var(--green)">P2</td></tr>
+                <tr><td style="color:var(--amber)">Premium Map Themes (Satellit, Terra, Night)</td><td class="cross">&mdash;</td><td class="check">&#10003;</td><td style="color:var(--amber)">P1</td></tr>
+                <tr><td style="color:var(--amber)">Altitude & Speed Graphs</td><td class="cross">&mdash;</td><td class="check">&#10003;</td><td style="color:var(--amber)">P1</td></tr>
+                <tr><td style="color:var(--amber)">Advanced Filters (Aircraft, Alt, Speed)</td><td class="cross">&mdash;</td><td class="check">&#10003;</td><td style="color:var(--green)">P2</td></tr>
+                <tr><td style="color:var(--amber)">Flight Alerts & Push Notifications</td><td class="cross">&mdash;</td><td class="check">&#10003;</td><td style="color:var(--green)">P2</td></tr>
+                <tr><td style="color:var(--amber)">Favoriten & Watchlist</td><td class="cross">&mdash;</td><td class="check">&#10003;</td><td style="color:var(--green)">P2</td></tr>
+                <tr><td style="color:var(--amber)">Statistiken & Heatmaps</td><td class="cross">&mdash;</td><td class="check">&#10003;</td><td style="color:var(--green)">P2</td></tr>
+                <tr><td style="color:var(--amber)">3D Globe View</td><td class="cross">&mdash;</td><td class="check">&#10003;</td><td style="color:var(--green)">P2</td></tr>
+                <tr><td style="color:var(--amber)">Historical Flight Replay</td><td class="cross">&mdash;</td><td class="check">&#10003;</td><td style="color:var(--blue)">P3</td></tr>
+                <tr><td style="color:var(--amber)">Livestreams (Twitch/YT)</td><td class="cross">&mdash;</td><td class="check">&#10003;</td><td style="color:var(--blue)">P3</td></tr>
+            </tbody>
+        </table>
+
+        <div class="section-header" style="margin-top: 40px;">Pricing <span>CHF (Schweizer Franken)</span></div>
+        <div class="tech-grid">
+            <div class="tech-item" style="border-color: var(--amber);">
+                <div class="tech-icon" style="background: rgba(251,191,36,0.15); color: var(--amber);">&#9992;</div>
+                <div>
+                    <div class="tech-name">Lifetime - CHF 25</div>
+                    <div class="tech-role">Einmal zahlen, fuer immer</div>
+                </div>
+            </div>
+            <div class="tech-item" style="border-color: white; background: rgba(255,255,255,0.05);">
+                <div class="tech-icon" style="background: white; color: black;">&#9992;</div>
+                <div>
+                    <div class="tech-name">Annually - CHF 15 <span style="color:var(--green);font-size:11px;">-58%</span></div>
+                    <div class="tech-role">CHF 1.25/Monat</div>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(251,191,36,0.15); color: var(--amber);">&#9992;</div>
+                <div>
+                    <div class="tech-name">Monthly - CHF 3</div>
+                    <div class="tech-role">Monatlich kuendbar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DESIGN SYSTEM -->
+    <div class="tab-content" id="tab-design">
+        <div class="section-header">Farbpalette <span>OLED-optimiert, Dark Mode</span></div>
+        <div class="color-swatches">
+            <div class="swatch">
+                <div class="swatch-color" style="background: #0a0a0f;"></div>
+                <div class="swatch-name">Background</div>
+                <div class="swatch-hex">#0a0a0f</div>
+            </div>
+            <div class="swatch">
+                <div class="swatch-color" style="background: #4ade80;"></div>
+                <div class="swatch-name">Green</div>
+                <div class="swatch-hex">#4ade80</div>
+            </div>
+            <div class="swatch">
+                <div class="swatch-color" style="background: #60a5fa;"></div>
+                <div class="swatch-name">Blue</div>
+                <div class="swatch-hex">#60a5fa</div>
+            </div>
+            <div class="swatch">
+                <div class="swatch-color" style="background: #22d3ee;"></div>
+                <div class="swatch-name">Cyan</div>
+                <div class="swatch-hex">#22d3ee</div>
+            </div>
+            <div class="swatch">
+                <div class="swatch-color" style="background: #a78bfa;"></div>
+                <div class="swatch-name">Purple</div>
+                <div class="swatch-hex">#a78bfa</div>
+            </div>
+            <div class="swatch">
+                <div class="swatch-color" style="background: #fbbf24;"></div>
+                <div class="swatch-name">Amber</div>
+                <div class="swatch-hex">#fbbf24</div>
+            </div>
+            <div class="swatch">
+                <div class="swatch-color" style="background: #f87171;"></div>
+                <div class="swatch-name">Red</div>
+                <div class="swatch-hex">#f87171</div>
+            </div>
+            <div class="swatch">
+                <div class="swatch-color" style="background: #f472b6;"></div>
+                <div class="swatch-name">Pink</div>
+                <div class="swatch-hex">#f472b6</div>
+            </div>
+        </div>
+
+        <div class="section-header">Typography</div>
+        <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+            <div style="font-family: 'DM Sans'; font-size: 32px; font-weight: 700; margin-bottom: 8px;">DM Sans - Headlines</div>
+            <div style="font-family: 'DM Sans'; font-size: 16px; color: var(--text-secondary); margin-bottom: 16px;">DM Sans wird fuer alle Ueberschriften und Body-Text verwendet.</div>
+            <div style="font-family: 'DM Mono'; font-size: 14px; color: var(--cyan); margin-bottom: 4px;">DM Mono - Data & Numbers</div>
+            <div style="font-family: 'DM Mono'; font-size: 24px; color: var(--green);">565 kt &middot; 39,002 ft &middot; FL390</div>
+        </div>
+
+        <div class="section-header">Aurora GLOW Effekt</div>
+        <div style="background: var(--bg-card); border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 24px;">
+            <div style="font-size: 48px; font-weight: 700; background: linear-gradient(90deg, #4ade80, #22d3ee, #a78bfa, #f472b6, #fbbf24, #4ade80); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: aurora 3s linear infinite;">SkyFocus Live</div>
+        </div>
+        <style>
+            @keyframes aurora {
+                0% { background-position: 0% center; }
+                100% { background-position: 200% center; }
+            }
+        </style>
+
+        <div class="section-header">Glassmorphism</div>
+        <div style="background: linear-gradient(135deg, #1a2a3a, #0a1a2a); border-radius: 12px; padding: 40px; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--blue); border-radius: 50%; filter: blur(40px); opacity: 0.3;"></div>
+            <div style="position: absolute; bottom: -20px; left: -20px; width: 80px; height: 80px; background: var(--purple); border-radius: 50%; filter: blur(40px); opacity: 0.3;"></div>
+            <div style="background: rgba(255,255,255,0.08); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 20px; position: relative;">
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">Glassmorphism Card</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">backdrop-filter: blur(16px) + rgba border</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TECH STACK -->
+    <div class="tab-content" id="tab-tech">
+        <div class="section-header">Frontend <span>Web/PWA</span></div>
+        <div class="tech-grid" style="margin-bottom: 32px;">
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(96,165,250,0.15); color: var(--blue);">R</div>
+                <div><div class="tech-name">React 19</div><div class="tech-role">UI Framework</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(167,139,250,0.15); color: var(--purple);">V</div>
+                <div><div class="tech-name">Vite</div><div class="tech-role">Build Tool</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(244,114,182,0.15); color: var(--pink);">FM</div>
+                <div><div class="tech-name">Framer Motion</div><div class="tech-role">Animationen</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(34,211,238,0.15); color: var(--cyan);">TW</div>
+                <div><div class="tech-name">Tailwind CSS</div><div class="tech-role">Styling</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(74,222,128,0.15); color: var(--green);">MB</div>
+                <div><div class="tech-name">Mapbox GL JS</div><div class="tech-role">Karten & Tiles</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(251,191,36,0.15); color: var(--amber);">Z</div>
+                <div><div class="tech-name">Zustand</div><div class="tech-role">State Management</div></div>
+            </div>
+        </div>
+
+        <div class="section-header">Backend & Daten</div>
+        <div class="tech-grid" style="margin-bottom: 32px;">
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(74,222,128,0.15); color: var(--green);">N</div>
+                <div><div class="tech-name">Node.js + Express</div><div class="tech-role">API Proxy & Cache</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(96,165,250,0.15); color: var(--blue);">VS</div>
+                <div><div class="tech-name">VATSIM API</div><div class="tech-role">Live Flight Data</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(34,211,238,0.15); color: var(--cyan);">WS</div>
+                <div><div class="tech-name">WebSocket</div><div class="tech-role">Echtzeit-Updates</div></div>
+            </div>
+        </div>
+
+        <div class="section-header">Datenquelle</div>
+        <div style="background: var(--bg-card); border-radius: 12px; padding: 20px; font-family: 'DM Mono', monospace; font-size: 13px;">
+            <div style="color: var(--text-muted); margin-bottom: 8px;">// VATSIM Live Data Feed (aktualisiert alle 15s)</div>
+            <div style="color: var(--cyan);">GET <span style="color: var(--green);">https://data.vatsim.net/v3/vatsim-data.json</span></div>
+            <div style="color: var(--text-muted); margin-top: 12px;">// Response enthalt:</div>
+            <div style="color: var(--text-secondary); margin-left: 16px;">pilots[] - Alle aktiven Piloten mit Position, Speed, Alt, Route</div>
+            <div style="color: var(--text-secondary); margin-left: 16px;">controllers[] - Alle ATC Stationen mit Frequenz, Position</div>
+            <div style="color: var(--text-secondary); margin-left: 16px;">atis[] - ATIS Informationen</div>
+            <div style="color: var(--text-secondary); margin-left: 16px;">facilities[] - FIR/UIR Grenzen</div>
+        </div>
+    </div>
+
+    <script>
+        // Set current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('de-CH', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Animate progress bars on load
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.progress-fill').forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => { bar.style.width = width; }, 300);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyFocus Live — Master Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,400;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f; --bg2: #12121a; --card: #1a1a25; --card2: #222233;
+  --border: #2a2a3a; --border2: #3a3a5a;
+  --text: #ffffff; --text2: #8888aa; --text3: #555566;
+  --green: #4ade80; --green-d: rgba(74,222,128,.12); --green-g: rgba(74,222,128,.25);
+  --blue: #60a5fa; --blue-d: rgba(96,165,250,.12);
+  --cyan: #22d3ee; --cyan-d: rgba(34,211,238,.12);
+  --purple: #a78bfa; --purple-d: rgba(167,139,250,.12);
+  --amber: #fbbf24; --amber-d: rgba(251,191,36,.12);
+  --red: #f87171; --red-d: rgba(248,113,113,.12);
+  --pink: #f472b6; --pink-d: rgba(244,114,182,.12);
+  --orange: #fb923c; --orange-d: rgba(251,146,60,.12);
+  --glow: linear-gradient(135deg, #4ade80, #22d3ee, #a78bfa, #f472b6);
+  --font: 'DM Sans', -apple-system, sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+
+.dash{max-width:1440px;margin:0 auto;padding:24px 32px 80px}
+
+/* Header */
+.hdr{padding:24px 0 20px;border-bottom:1px solid var(--border);margin-bottom:28px;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(74,222,128,.04),transparent 70%);pointer-events:none}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.hdr-left{display:flex;align-items:center;gap:16px}
+.logo{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;position:relative;overflow:hidden}
+.logo::before{content:'';position:absolute;inset:0;background:var(--glow);animation:aur 4s linear infinite;background-size:300% auto}
+.logo span{position:relative;z-index:1}
+@keyframes aur{0%{background-position:0% center}100%{background-position:300% center}}
+.hdr h1{font-size:32px;font-weight:800;background:var(--glow);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:aur 4s linear infinite}
+.hdr-sub{font-size:11px;letter-spacing:3px;color:var(--text3);margin-top:2px}
+.hdr-badges{display:flex;gap:8px;flex-wrap:wrap}
+.hdr-badge{padding:6px 14px;border-radius:8px;font-size:11px;font-family:var(--mono);letter-spacing:1px;font-weight:600}
+
+/* Nav */
+.nav{display:flex;gap:2px;padding:3px;background:var(--bg2);border-radius:12px;border:1px solid var(--border);margin-bottom:28px;overflow-x:auto;flex-wrap:wrap}
+.nav a{padding:10px 16px;border-radius:9px;font-size:12px;letter-spacing:.5px;color:var(--text3);text-decoration:none;font-weight:600;transition:all .2s;white-space:nowrap;cursor:pointer}
+.nav a:hover,.nav a.act{background:rgba(74,222,128,.08);color:var(--green)}
+
+/* Section */
+.sec{margin-bottom:36px;scroll-margin-top:20px}
+.sec-t{font-size:11px;letter-spacing:4px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sec-t span{font-size:16px}
+
+/* Cards & Grids */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:all .2s}
+.card:hover{border-color:var(--border2);background:var(--card2)}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:12px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.g5{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat-v{font-size:32px;font-weight:800;font-family:var(--mono)}
+.stat-l{font-size:8px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-top:4px;font-weight:600}
+.stat-s{font-size:10px;color:var(--text2);margin-top:2px}
+
+/* Progress */
+.prog{height:4px;background:rgba(74,222,128,.1);border-radius:2px;overflow:hidden;margin-top:10px}
+.prog-f{height:100%;border-radius:2px;transition:width .5s}
+.prog-lbl{display:flex;justify-content:space-between;font-size:9px;font-family:var(--mono);color:var(--text3);margin-top:4px}
+
+/* Badges */
+.b{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;font-family:var(--mono)}
+.b-done{background:var(--green-d);color:var(--green)}
+.b-wip{background:var(--amber-d);color:var(--amber)}
+.b-plan{background:var(--blue-d);color:var(--blue)}
+.b-miss{background:var(--red-d);color:var(--red)}
+.b-mock{background:var(--purple-d);color:var(--purple)}
+.b-code{background:var(--cyan-d);color:var(--cyan)}
+.b-new{background:var(--pink-d);color:var(--pink)}
+
+/* Tables */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:10px 14px;font-size:8px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border2);background:rgba(74,222,128,.02)}
+.tbl td{padding:10px 14px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl tr:hover td{background:rgba(74,222,128,.02)}
+
+/* Phase cards */
+.phase{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:all .2s}
+.phase:hover{border-color:var(--border2);transform:translateY(-2px)}
+.phase::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.ph-0::before{background:var(--green)}.ph-1::before{background:var(--blue)}.ph-2::before{background:var(--cyan)}.ph-3::before{background:var(--purple)}.ph-4::before{background:var(--amber)}.ph-5::before{background:var(--pink)}
+.phase-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--text3);letter-spacing:1px}
+.phase-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.phase-desc{font-size:12px;color:var(--text2);line-height:1.6}
+.phase-tasks{margin-top:12px;display:flex;flex-direction:column;gap:4px}
+.phase-task{font-size:11px;color:var(--text2);padding-left:16px;position:relative}
+.phase-task::before{content:'';position:absolute;left:0;top:6px;width:8px;height:8px;border-radius:50%;border:1.5px solid var(--text3)}
+.phase-task.done::before{background:var(--green);border-color:var(--green)}
+.phase-task.wip::before{background:var(--amber);border-color:var(--amber)}
+
+/* Vision box */
+.vision{background:linear-gradient(135deg,rgba(74,222,128,.04),rgba(34,211,238,.04),rgba(167,139,250,.04));border:1px solid rgba(74,222,128,.15);border-radius:16px;padding:28px;margin-bottom:20px;position:relative;overflow:hidden}
+.vision::before{content:'';position:absolute;top:-50%;right:-20%;width:300px;height:300px;background:radial-gradient(circle,rgba(74,222,128,.06),transparent);pointer-events:none}
+
+/* Flow */
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.flow-s{padding:12px 16px;border-radius:10px;background:var(--card);border:1px solid var(--border);font-size:12px;font-weight:600;text-align:center;min-width:90px}
+.flow-s .ico{font-size:20px;display:block;margin-bottom:4px}
+.flow-s .lbl{font-size:8px;color:var(--text3);letter-spacing:2px;display:block;margin-top:2px}
+.flow-a{color:var(--green);font-size:14px}
+
+/* Persona */
+.persona{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .2s}
+.persona:hover{border-color:var(--border2)}
+.persona-ico{font-size:32px;margin-bottom:8px}
+.persona-name{font-weight:700;font-size:14px;margin-bottom:2px}
+.persona-age{font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:6px}
+.persona-desc{font-size:11px;color:var(--text2);line-height:1.5}
+.persona-pay{font-size:10px;color:var(--green);font-family:var(--mono);margin-top:8px}
+
+/* Roadmap item */
+.rm{display:flex;gap:14px;padding:16px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;transition:all .2s}
+.rm:hover{border-color:var(--border2)}
+.rm-n{min-width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:14px}
+.rm-title{font-weight:700;font-size:14px}
+.rm-desc{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.5}
+.rm-tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.rm-tag{font-size:9px;padding:2px 8px;border-radius:4px;font-family:var(--mono)}
+.rm-rev{font-size:11px;color:var(--green);font-family:var(--mono);margin-top:6px;font-weight:600}
+
+/* Collapsible */
+details{margin-bottom:2px}
+details summary{cursor:pointer;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;list-style:none;display:flex;align-items:center;gap:10px;transition:all .2s}
+details summary:hover{border-color:var(--border2)}
+details summary::before{content:'';display:inline-block;width:6px;height:6px;border-right:2px solid var(--green);border-bottom:2px solid var(--green);transform:rotate(-45deg);transition:transform .2s}
+details[open] summary::before{transform:rotate(45deg)}
+details[open] summary{border-radius:10px 10px 0 0;border-bottom-color:transparent}
+details .det{padding:16px;background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px}
+
+/* File tree */
+.tree{font-family:var(--mono);font-size:12px;line-height:2;color:var(--text2);padding:16px 20px}
+.tree .d{color:var(--green);font-weight:600}
+.tree .f{color:var(--text)}
+.tree .c{color:var(--text3);font-style:italic;font-size:10px}
+.tree-i{padding-left:20px;border-left:1px solid var(--border);margin-left:8px}
+
+/* Revenue */
+.rev-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center}
+.rev-v{font-size:28px;font-weight:800;font-family:var(--mono)}
+.rev-l{font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-top:2px}
+
+.ts{text-align:center;padding:20px;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:2px;border-top:1px solid var(--border);margin-top:20px}
+
+@media(max-width:768px){.dash{padding:16px 14px 40px}.g2,.g3{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="dash">
+
+<!-- ═══ HEADER ═══ -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="hdr-left">
+      <div class="logo"><span>✈</span></div>
+      <div>
+        <h1>SkyFocus Live</h1>
+        <div class="hdr-sub">VATSIM · LIVE STREAMS · FOCUS · MONETARISIERUNG</div>
+      </div>
+    </div>
+    <div class="hdr-badges">
+      <span class="hdr-badge" style="background:var(--green-d);color:var(--green)">PRD: Done</span>
+      <span class="hdr-badge" style="background:var(--purple-d);color:var(--purple)">Mockups: 2/8</span>
+      <span class="hdr-badge" style="background:var(--blue-d);color:var(--blue)">React/TS: Scaffold</span>
+      <span class="hdr-badge" style="background:rgba(255,255,255,.04);color:var(--text3)">Stand: 16.03.2026</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav">
+  <a href="#vision" class="act">Vision</a>
+  <a href="#business">Business Model</a>
+  <a href="#personas">Personas</a>
+  <a href="#phases">Phasen & Roadmap</a>
+  <a href="#features">Features</a>
+  <a href="#screens">Screens & Flow</a>
+  <a href="#streaming">Pilot Streaming</a>
+  <a href="#tech">Tech Stack</a>
+  <a href="#assets">Assets & Code</a>
+  <a href="#monetization">Monetarisierung</a>
+  <a href="#roadmap">Offene TODOs</a>
+</nav>
+
+<!-- ═══ VISION ═══ -->
+<div class="sec" id="vision">
+  <div class="sec-t"><span>🎯</span> VISION & KONZEPT</div>
+
+  <div class="vision">
+    <div style="font-size:18px;font-weight:800;margin-bottom:12px;letter-spacing:1px">Die Brücke zwischen zwei Welten</div>
+    <div style="font-size:14px;color:var(--text2);line-height:1.8;max-width:800px">
+      <strong style="color:var(--green)">Welt 1:</strong> Millionen Menschen suchen Fokus-Tools. FocusFlight beweist: Aviation-Ästhetik macht süchtig ($3.99/mo, 4.8★).<br>
+      <strong style="color:var(--cyan)">Welt 2:</strong> Tausende VATSIM-Piloten fliegen 24/7 realistische Routen um die Welt — unsichtbar für Nicht-Simmer.<br>
+      <strong style="color:var(--purple)">Welt 3:</strong> Flight-Sim-Piloten investieren Tausende in Hardware, verdienen aber nichts mit ihrem Können.<br><br>
+      <strong style="color:var(--text)">SkyFocus Live</strong> verbindet alle drei: Eine wunderschöne Focus-App, die <em>echte</em> VATSIM-Flüge auf einer Live-Karte zeigt — und Sim-Piloten ermöglicht, ihre Cockpit-Streams live zu teilen und <strong style="color:var(--green)">echtes Geld</strong> zu verdienen (Tips, Subs, Featured Flights).
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <div style="font-size:28px;margin-bottom:8px">🎯</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px">FocusFlight-Level UX</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6">Immersives Onboarding, Aurora-Glow, Glassmorphism, Premium Dark UI. Mindestens so gut wie FocusFlight ($3.99/mo App). 46 extrahierte Frames als UI-Referenz vorhanden.</div>
+    </div>
+    <div class="card">
+      <div style="font-size:28px;margin-bottom:8px">📡</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px">VATSIM Live Data</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6">Echte Flugsimulator-Piloten auf Mapbox GL. 1,000-2,000+ gleichzeitige Flüge. Callsign, Route, Altitude, Speed, Aircraft Type. Updates alle 15s. ATC-Stationen sichtbar.</div>
+    </div>
+    <div class="card">
+      <div style="font-size:28px;margin-bottom:8px">💰</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px">Piloten verdienen Geld</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6">Sim-Piloten streamen ihren Cockpit-View. User zahlen Tips, Subscriptions, oder wählen "Featured Flights". Twitch für die Flugsim-Welt — aber elegant in eine Focus-App integriert.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BUSINESS MODEL ═══ -->
+<div class="sec" id="business">
+  <div class="sec-t"><span>💼</span> BUSINESS MODEL — DREI REVENUE STREAMS</div>
+
+  <div class="g3" style="margin-bottom:20px">
+    <div class="card" style="border-left:3px solid var(--green)">
+      <div style="font-size:10px;letter-spacing:3px;color:var(--green);font-weight:700;margin-bottom:8px">STREAM 1: PRO SUBSCRIPTIONS</div>
+      <div style="font-size:24px;font-weight:800;font-family:var(--mono);color:var(--green);margin-bottom:8px">CHF 3/mo</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6">
+        Free Tier: Live-Karte mit allen VATSIM-Flügen, Basic Flight Cards<br>
+        <strong>Pro Tier:</strong> Premium Map Themes (4), Altitude/Speed Graphs, Statistiken, Favoriten, Pilot-Following, Werbefreiheit
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;font-family:var(--mono)">Preise: CHF 3/mo · CHF 15/yr · CHF 25 Lifetime</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--purple)">
+      <div style="font-size:10px;letter-spacing:3px;color:var(--purple);font-weight:700;margin-bottom:8px">STREAM 2: PILOT STREAMING</div>
+      <div style="font-size:24px;font-weight:800;font-family:var(--mono);color:var(--purple);margin-bottom:8px">20% Cut</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6">
+        Piloten streamen Cockpit-View live in die App<br>
+        <strong>User können:</strong> Tips geben (CHF 1-50), Pilot subscriben (CHF 2/mo), "Fly Along" buchen (Premium-Platz im Stream)<br>
+        <strong>SkyFocus nimmt:</strong> 20% Commission auf alle Pilot-Einnahmen
+      </div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--amber)">
+      <div style="font-size:10px;letter-spacing:3px;color:var(--amber);font-weight:700;margin-bottom:8px">STREAM 3: FEATURED FLIGHTS</div>
+      <div style="font-size:24px;font-weight:800;font-family:var(--mono);color:var(--amber);margin-bottom:8px">CHF 5-15</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6">
+        Kuratierte Premium-Erlebnisse:<br>
+        <strong>Featured Routes:</strong> Gesponserte Scenic Flights (z.B. "SWISS ZRH→LIS Sunset")<br>
+        <strong>Event Flights:</strong> Group Flights mit Top-Piloten, limitierte Plätze<br>
+        <strong>Pilot Spotlight:</strong> Bezahlte Promotion für Top-Streamer
+      </div>
+    </div>
+  </div>
+
+  <!-- Revenue Projection -->
+  <div style="font-size:10px;letter-spacing:2px;color:var(--text3);font-weight:600;margin-bottom:10px">REVENUE PROJEKTION (12 MONATE)</div>
+  <div class="g5">
+    <div class="rev-card"><div class="rev-v" style="color:var(--green)">2K</div><div class="rev-l">MAU (30 Tage)</div></div>
+    <div class="rev-card"><div class="rev-v" style="color:var(--green)">10%</div><div class="rev-l">Free→Pro Conv.</div></div>
+    <div class="rev-card"><div class="rev-v" style="color:var(--purple)">50</div><div class="rev-l">Active Streamers</div></div>
+    <div class="rev-card"><div class="rev-v" style="color:var(--amber)">CHF 600</div><div class="rev-l">MRR Pro Subs</div></div>
+    <div class="rev-card"><div class="rev-v" style="color:var(--amber)">CHF 400</div><div class="rev-l">MRR Streaming</div></div>
+    <div class="rev-card"><div class="rev-v" style="color:var(--text)">CHF 1K</div><div class="rev-l">Total MRR</div></div>
+  </div>
+</div>
+
+<!-- ═══ PERSONAS ═══ -->
+<div class="sec" id="personas">
+  <div class="sec-t"><span>👥</span> ZIELGRUPPEN / PERSONAS</div>
+  <div class="g4">
+    <div class="persona">
+      <div class="persona-ico">🎯</div>
+      <div class="persona-name">Der Fokus-Suchende</div>
+      <div class="persona-age">20-35 · Studenten & Remote Worker · PRIMARY</div>
+      <div class="persona-desc">Nutzt Focus-Apps (Forest, FocusFlight, Brain.fm). Sucht immersive Arbeitsumgebung. Will etwas Lebendiges statt statischer Timer.</div>
+      <div class="persona-pay">💳 CHF 15-25/yr für Premium</div>
+    </div>
+    <div class="persona">
+      <div class="persona-ico">✈️</div>
+      <div class="persona-name">Der Aviation-Fan</div>
+      <div class="persona-age">18-40 · FlightRadar24 User · SECONDARY</div>
+      <div class="persona-desc">Liebt Flugzeuge und Reisen. Nutzt FlightRadar24, schaut Plane-Spotting Videos. Will live Flüge beobachten und Routen verfolgen.</div>
+      <div class="persona-pay">💳 CHF 3/mo für Premium Maps</div>
+    </div>
+    <div class="persona">
+      <div class="persona-ico">🧘</div>
+      <div class="persona-name">Der Entspannungs-Suchende</div>
+      <div class="persona-age">25-50 · ASMR / Lo-Fi Lover · TERTIARY</div>
+      <div class="persona-desc">Nutzt Meditations-Apps, ASMR, Lo-Fi Streams. Will beruhigende, sich ständig verändernde Visualisierung — ein lebendiges Aquarium mit Flugzeugen.</div>
+      <div class="persona-pay">💳 CHF 25 Lifetime</div>
+    </div>
+    <div class="persona" style="border-color:var(--green-g)">
+      <div class="persona-ico">🕹️</div>
+      <div class="persona-name">Der Sim-Pilot / Streamer</div>
+      <div class="persona-age">25-45 · MSFS/X-Plane · SUPPLY SIDE</div>
+      <div class="persona-desc">Fliegt selbst im Simulator auf VATSIM. Investiert Tausende in Hardware. Will sein Können zeigen und <strong style="color:var(--green)">echtes Geld verdienen</strong>. Wird zum Content-Creator.</div>
+      <div class="persona-pay">💚 Verdient CHF 50-500/mo durch Streams</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHASEN ═══ -->
+<div class="sec" id="phases">
+  <div class="sec-t"><span>🗺️</span> PROJEKT-PHASEN & ROADMAP</div>
+
+  <div class="g3">
+    <div class="phase ph-0">
+      <div class="phase-hdr"><span class="phase-n">PHASE 0</span><span class="b b-done">Done</span></div>
+      <div class="phase-title">Setup & Planning</div>
+      <div class="phase-desc">Projektstruktur, Dashboard, Skills, PRD</div>
+      <div class="phase-tasks">
+        <div class="phase-task done">PRD geschrieben (207 Zeilen)</div>
+        <div class="phase-task done">Dashboard erstellt</div>
+        <div class="phase-task done">FocusFlight Frames extrahiert (46)</div>
+      </div>
+    </div>
+    <div class="phase ph-1">
+      <div class="phase-hdr"><span class="phase-n">PHASE 1</span><span class="b b-wip">In Progress</span></div>
+      <div class="phase-title">Design & Mockups</div>
+      <div class="phase-desc">Interactive HTML Mockups für alle Screens</div>
+      <div class="phase-tasks">
+        <div class="phase-task done">Onboarding Mockup (7 Screens)</div>
+        <div class="phase-task done">Dashboard Mockup</div>
+        <div class="phase-task">Live Map Mockup</div>
+        <div class="phase-task">Flight Detail Bottom Sheet</div>
+        <div class="phase-task">Paywall Mockup</div>
+        <div class="phase-task">Pilot Stream View Mockup</div>
+        <div class="phase-task">Pilot Dashboard Mockup</div>
+        <div class="phase-task">Design Tokens / System</div>
+      </div>
+      <div class="prog"><div class="prog-f" style="width:25%;background:var(--blue)"></div></div>
+      <div class="prog-lbl"><span>2 / 8 Mockups</span><span>25%</span></div>
+    </div>
+    <div class="phase ph-2">
+      <div class="phase-hdr"><span class="phase-n">PHASE 2</span><span class="b b-wip">Scaffold</span></div>
+      <div class="phase-title">Architecture & Setup</div>
+      <div class="phase-desc">React + Vite + Tailwind + Mapbox + VATSIM Proxy</div>
+      <div class="phase-tasks">
+        <div class="phase-task done">React/TS App Scaffold (Projekt 2)</div>
+        <div class="phase-task done">Component Architecture</div>
+        <div class="phase-task done">Types definiert</div>
+        <div class="phase-task done">Hooks (useTimer, useStats, useSound)</div>
+        <div class="phase-task done">localStorage Persistence</div>
+        <div class="phase-task done">Routes Data (6 Routen)</div>
+        <div class="phase-task">Mapbox GL JS Integration</div>
+        <div class="phase-task">VATSIM API Proxy Backend</div>
+        <div class="phase-task">State Management (Zustand)</div>
+      </div>
+      <div class="prog"><div class="prog-f" style="width:60%;background:var(--cyan)"></div></div>
+      <div class="prog-lbl"><span>6 / 9 Tasks</span><span>60%</span></div>
+    </div>
+    <div class="phase ph-3">
+      <div class="phase-hdr"><span class="phase-n">PHASE 3</span><span class="b b-plan">Planned</span></div>
+      <div class="phase-title">MVP / Free Version</div>
+      <div class="phase-desc">Onboarding + Live Map + Flight Details + PWA</div>
+      <div class="phase-tasks">
+        <div class="phase-task">Onboarding Flow mit Animationen</div>
+        <div class="phase-task">Live Map mit VATSIM Flights</div>
+        <div class="phase-task">Flight Detail Bottom Sheet</div>
+        <div class="phase-task">Route Visualization</div>
+        <div class="phase-task">PWA Manifest & Service Worker</div>
+        <div class="phase-task">Ambient Sound Integration</div>
+      </div>
+    </div>
+    <div class="phase ph-4">
+      <div class="phase-hdr"><span class="phase-n">PHASE 4</span><span class="b b-plan">Planned</span></div>
+      <div class="phase-title">Pro Version & Paywall</div>
+      <div class="phase-desc">Premium Features + Monetarisierung</div>
+      <div class="phase-tasks">
+        <div class="phase-task">Paywall mit Feature-Carousel</div>
+        <div class="phase-task">Premium Map Themes (4)</div>
+        <div class="phase-task">Altitude/Speed Graphs</div>
+        <div class="phase-task">Discount Coupon System</div>
+        <div class="phase-task">Stripe Integration</div>
+      </div>
+    </div>
+    <div class="phase ph-5">
+      <div class="phase-hdr"><span class="phase-n">PHASE 5</span><span class="b b-new">Game Changer</span></div>
+      <div class="phase-title">Pilot Livestreaming</div>
+      <div class="phase-desc">Piloten streamen Cockpit → User zahlen</div>
+      <div class="phase-tasks">
+        <div class="phase-task">Pilot Registration & Verification</div>
+        <div class="phase-task">Stream Ingestion (RTMP/WebRTC)</div>
+        <div class="phase-task">In-App Stream Player</div>
+        <div class="phase-task">Tip System (CHF 1-50)</div>
+        <div class="phase-task">Pilot Subscriptions (CHF 2/mo)</div>
+        <div class="phase-task">Featured Flights Marketplace</div>
+        <div class="phase-task">Pilot Dashboard & Analytics</div>
+        <div class="phase-task">Multi-Perspective Camera Selector</div>
+        <div class="phase-task">Payout System (Stripe Connect)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overall Progress -->
+  <div class="card" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-weight:700;letter-spacing:2px;font-size:13px">GESAMTFORTSCHRITT</span>
+      <span style="font-family:var(--mono);color:var(--green);font-weight:700">28%</span>
+    </div>
+    <div class="prog"><div class="prog-f" style="width:28%;background:var(--glow)"></div></div>
+    <div class="prog-lbl"><span>Phase 0 ✓ · Phase 1-2 WIP</span><span>Phase 3-5 Planned</span></div>
+  </div>
+</div>
+
+<!-- ═══ FEATURES ═══ -->
+<div class="sec" id="features">
+  <div class="sec-t"><span>✅</span> FEATURE-MATRIX</div>
+
+  <div class="card" style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th style="width:30%">Feature</th><th style="width:10%">Status</th><th style="width:15%">Wo</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td colspan="4" style="font-size:9px;letter-spacing:3px;color:var(--green);font-weight:700;padding:12px;background:var(--green-d)">ONBOARDING (FocusFlight-Level)</td></tr>
+        <tr><td style="font-weight:600">7-Screen Onboarding</td><td><span class="b b-mock">Mockup</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">onboarding.html</td><td style="font-size:11px;color:var(--text2)">Welcome → Problem/Solution → App Reveal (Aurora Glow) → Flight Card → Map Style → Notifications → Ready</td></tr>
+        <tr><td style="font-weight:600">Aurora Glow Effect</td><td><span class="b b-mock">Mockup</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">CSS Animation</td><td style="font-size:11px;color:var(--text2)">Rainbow gradient animation auf "SkyFocus Live" Text + blur glow</td></tr>
+        <tr><td style="font-weight:600">3D Globe (Map Selection)</td><td><span class="b b-mock">Mockup</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">CSS 3D</td><td style="font-size:11px;color:var(--text2)">Rotierende Kugel mit Landmassen, 4 Map-Styles wählbar</td></tr>
+        <tr><td style="font-weight:600">Flight Card Preview</td><td><span class="b b-mock">Mockup</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">onboarding.html</td><td style="font-size:11px;color:var(--text2)">BAW178 KJFK→EGLL Card mit Progress, Speed, Alt, ETA, Barcode</td></tr>
+
+        <tr><td colspan="4" style="font-size:9px;letter-spacing:3px;color:var(--cyan);font-weight:700;padding:12px;background:var(--cyan-d)">LIVE MAP (Core Free Feature)</td></tr>
+        <tr><td style="font-weight:600">Mapbox GL Dark Map</td><td><span class="b b-plan">Planned</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Phase 3</td><td style="font-size:11px;color:var(--text2)">Dark-style Map, 50K loads/mo free tier, &lt;2s load</td></tr>
+        <tr><td style="font-weight:600">VATSIM Flight Icons</td><td><span class="b b-plan">Planned</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Phase 3</td><td style="font-size:11px;color:var(--text2)">Alle live Piloten als rotierte ✈ Icons, 1000-2000+ gleichzeitig</td></tr>
+        <tr><td style="font-weight:600">ATC Stations</td><td><span class="b b-plan">Planned</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Phase 3</td><td style="font-size:11px;color:var(--text2)">Orange Pin-Markers, blaue Airspace-Overlay-Zones</td></tr>
+        <tr><td style="font-weight:600">Flight Selection</td><td><span class="b b-plan">Planned</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Phase 3</td><td style="font-size:11px;color:var(--text2)">Tap → rot markiert, Past-Track (magenta), geplante Route (dashed)</td></tr>
+        <tr><td style="font-weight:600">Flight Count Badge</td><td><span class="b b-plan">Planned</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Phase 3</td><td style="font-size:11px;color:var(--text2)">"1,247 Piloten live" — real-time counter</td></tr>
+
+        <tr><td colspan="4" style="font-size:9px;letter-spacing:3px;color:var(--blue);font-weight:700;padding:12px;background:var(--blue-d)">FLIGHT DETAIL (Bottom Sheet)</td></tr>
+        <tr><td style="font-weight:600">Flight Summary</td><td><span class="b b-plan">Planned</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Phase 3</td><td style="font-size:11px;color:var(--text2)">Callsign, Pilot, Aircraft, Speed/Alt, Route Progress Bar</td></tr>
+        <tr><td style="font-weight:600">Route Section</td><td><span class="b b-plan">Planned</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Phase 3</td><td style="font-size:11px;color:var(--text2)">DEP → ARR mit ICAO, City, IFR/VFR, EET</td></tr>
+        <tr><td style="font-weight:600">Live Data</td><td><span class="b b-plan">Planned</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Phase 3</td><td style="font-size:11px;color:var(--text2)">Speed (kt), Altitude (ft), Squawk, Heading</td></tr>
+        <tr><td style="font-weight:600">Altitude/Speed Graphs</td><td><span class="b b-plan">Pro</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Phase 4</td><td style="font-size:11px;color:var(--text2)">SVG animated line charts, blue=altitude, green=speed</td></tr>
+        <tr><td style="font-weight:600">Operator Info</td><td><span class="b b-plan">Planned</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Phase 3</td><td style="font-size:11px;color:var(--text2)">Airline name + logo, country, radio callsign</td></tr>
+
+        <tr><td colspan="4" style="font-size:9px;letter-spacing:3px;color:var(--purple);font-weight:700;padding:12px;background:var(--purple-d)">PILOT STREAMING (Phase 5 — Game Changer)</td></tr>
+        <tr><td style="font-weight:600">Pilot Registration</td><td><span class="b b-plan">Phase 5</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Backend</td><td style="font-size:11px;color:var(--text2)">VATSIM CID Verification, Profil mit Bio/Equipment/Rating</td></tr>
+        <tr><td style="font-weight:600">Stream Ingestion</td><td><span class="b b-plan">Phase 5</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">RTMP/WebRTC</td><td style="font-size:11px;color:var(--text2)">OBS → SkyFocus Ingest Server, oder direkt via WebRTC aus Sim</td></tr>
+        <tr><td style="font-weight:600">In-App Stream Player</td><td><span class="b b-plan">Phase 5</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">HLS/DASH</td><td style="font-size:11px;color:var(--text2)">Embedded Player im Flight Detail Sheet, Fullscreen möglich</td></tr>
+        <tr><td style="font-weight:600">🎬 Multi-Camera</td><td><span class="b b-plan">Phase 5</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">UI</td><td style="font-size:11px;color:var(--text2)">Cockpit / Window / External — Pilot streamt mehrere Perspektiven</td></tr>
+        <tr><td style="font-weight:600">💰 Tip System</td><td><span class="b b-plan">Phase 5</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Stripe</td><td style="font-size:11px;color:var(--text2)">CHF 1, 5, 10, 25, 50 Tips mit Animation + Notification an Pilot</td></tr>
+        <tr><td style="font-weight:600">💜 Pilot Subscriptions</td><td><span class="b b-plan">Phase 5</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Stripe</td><td style="font-size:11px;color:var(--text2)">CHF 2/mo pro Pilot, Badge im Chat, Priority Notifications</td></tr>
+        <tr><td style="font-weight:600">⭐ Featured Flights</td><td><span class="b b-plan">Phase 5</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Marketplace</td><td style="font-size:11px;color:var(--text2)">Kuratierte Premium-Erlebnisse, promoted auf Home Screen</td></tr>
+        <tr><td style="font-weight:600">📊 Pilot Dashboard</td><td><span class="b b-plan">Phase 5</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Web App</td><td style="font-size:11px;color:var(--text2)">Earnings, Viewers, Ratings, Payout History, Stream Analytics</td></tr>
+        <tr><td style="font-weight:600">💸 Payout System</td><td><span class="b b-plan">Phase 5</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Stripe Connect</td><td style="font-size:11px;color:var(--text2)">Monatliche Auszahlung, 80% an Pilot / 20% Platform Fee</td></tr>
+
+        <tr><td colspan="4" style="font-size:9px;letter-spacing:3px;color:var(--amber);font-weight:700;padding:12px;background:var(--amber-d)">PRO FEATURES & PAYWALL</td></tr>
+        <tr><td style="font-weight:600">Paywall (6-Slide Carousel)</td><td><span class="b b-plan">Phase 4</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Mockup nötig</td><td style="font-size:11px;color:var(--text2)">iPhone-Frame Previews, 3 Pricing Tiers, "7 Tage kostenlos" CTA</td></tr>
+        <tr><td style="font-weight:600">Premium Map Themes</td><td><span class="b b-plan">Phase 4</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">Mapbox Styles</td><td style="font-size:11px;color:var(--text2)">Monochrom, Terra, Standard, Satellit</td></tr>
+        <tr><td style="font-weight:600">Discount Coupon</td><td><span class="b b-plan">Phase 4</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">After 3rd session</td><td style="font-size:11px;color:var(--text2)">Ticket-Style Popup, -48%, Countdown Timer, Barcode</td></tr>
+
+        <tr><td colspan="4" style="font-size:9px;letter-spacing:3px;color:var(--orange-d);color:var(--orange);font-weight:700;padding:12px;background:var(--orange-d)">EXISTING REACT/TS CODE (Projekt 2)</td></tr>
+        <tr><td style="font-weight:600">App Shell & Routing</td><td><span class="b b-code">Code</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">App.tsx</td><td style="font-size:11px;color:var(--text2)">4 Screens: Home → CheckIn → Flight → Complete</td></tr>
+        <tr><td style="font-weight:600">Type System</td><td><span class="b b-code">Code</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">types/index.ts</td><td style="font-size:11px;color:var(--text2)">Screen, ViewId, SoundId, Route, View, Sound, Stats</td></tr>
+        <tr><td style="font-weight:600">6 Routen</td><td><span class="b b-code">Code</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">data/routes.ts</td><td style="font-size:11px;color:var(--text2)">ZRH-LIS, DXB-MLE, JFK-LHR, NRT-SYD, CDG-JFK, SIN-LHR</td></tr>
+        <tr><td style="font-weight:600">useTimer Hook</td><td><span class="b b-code">Code</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">hooks/useTimer.ts</td><td style="font-size:11px;color:var(--text2)">Start, pause, resume, meal break, progress calculation</td></tr>
+        <tr><td style="font-weight:600">useStats Hook</td><td><span class="b b-code">Code</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">hooks/useStats.ts</td><td style="font-size:11px;color:var(--text2)">Completed flights, total minutes, streak tracking</td></tr>
+        <tr><td style="font-weight:600">useSound Hook (Howler.js)</td><td><span class="b b-code">Code</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">hooks/useSound.ts</td><td style="font-size:11px;color:var(--text2)">Cabin, Engine, Rain, ATC — mp3-basiert mit fade</td></tr>
+        <tr><td style="font-weight:600">localStorage Persistence</td><td><span class="b b-code">Code</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">utils/storage.ts</td><td style="font-size:11px;color:var(--text2)">loadStats, saveStats, calcNewStreak — persistent!</td></tr>
+        <tr><td style="font-weight:600">6 Components</td><td><span class="b b-code">Code</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">components/</td><td style="font-size:11px;color:var(--text2)">FlightMap, FlightView, HUD, RouteCard, SeatMap, WorldMap</td></tr>
+        <tr><td style="font-weight:600">4 Screen Components</td><td><span class="b b-code">Code</span></td><td style="font-size:10px;color:var(--text3);font-family:var(--mono)">screens/</td><td style="font-size:11px;color:var(--text2)">HomeScreen, CheckInScreen, FlightScreen, CompleteScreen</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ SCREENS & FLOW ═══ -->
+<div class="sec" id="screens">
+  <div class="sec-t"><span>🖥️</span> USER FLOW — ZWEI PFADE</div>
+
+  <div style="font-size:10px;letter-spacing:2px;color:var(--green);font-weight:600;margin-bottom:10px">PFAD 1: FOKUS-USER (Zuschauer)</div>
+  <div class="flow" style="margin-bottom:20px">
+    <div class="flow-s" style="border-color:var(--green-g)"><span class="ico">👋</span>Onboarding<span class="lbl">7 Screens</span></div>
+    <span class="flow-a">→</span>
+    <div class="flow-s"><span class="ico">🗺️</span>Live Map<span class="lbl">VATSIM Flights</span></div>
+    <span class="flow-a">→</span>
+    <div class="flow-s"><span class="ico">✈️</span>Flight Tap<span class="lbl">Select & Follow</span></div>
+    <span class="flow-a">→</span>
+    <div class="flow-s"><span class="ico">📋</span>Detail Sheet<span class="lbl">Route · Data · Pilot</span></div>
+    <span class="flow-a">→</span>
+    <div class="flow-s" style="border-color:var(--purple-d);background:var(--purple-d)"><span class="ico">🎬</span>Watch Stream<span class="lbl">Cockpit Live</span></div>
+    <span class="flow-a">→</span>
+    <div class="flow-s"><span class="ico">💰</span>Tip / Sub<span class="lbl">Support Pilot</span></div>
+  </div>
+
+  <div style="font-size:10px;letter-spacing:2px;color:var(--purple);font-weight:600;margin-bottom:10px">PFAD 2: SIM-PILOT (Streamer)</div>
+  <div class="flow">
+    <div class="flow-s" style="border-color:var(--purple-d)"><span class="ico">📝</span>Register<span class="lbl">VATSIM CID</span></div>
+    <span class="flow-a">→</span>
+    <div class="flow-s"><span class="ico">⚙️</span>Setup OBS<span class="lbl">Stream Key</span></div>
+    <span class="flow-a">→</span>
+    <div class="flow-s"><span class="ico">🛫</span>Fly on VATSIM<span class="lbl">Normal Flight</span></div>
+    <span class="flow-a">→</span>
+    <div class="flow-s" style="border-color:var(--green-g);background:var(--green-d)"><span class="ico">📡</span>Stream Live<span class="lbl">Auto-detected</span></div>
+    <span class="flow-a">→</span>
+    <div class="flow-s"><span class="ico">👀</span>Get Viewers<span class="lbl">Promoted</span></div>
+    <span class="flow-a">→</span>
+    <div class="flow-s" style="border-color:var(--green-g)"><span class="ico">💸</span>Earn Money<span class="lbl">Tips + Subs</span></div>
+  </div>
+</div>
+
+<!-- ═══ PILOT STREAMING ═══ -->
+<div class="sec" id="streaming">
+  <div class="sec-t"><span>🎬</span> PILOT STREAMING — DAS HERZSTÜCK</div>
+
+  <div class="vision" style="border-color:rgba(167,139,250,.15);background:linear-gradient(135deg,rgba(167,139,250,.04),rgba(244,114,182,.04))">
+    <div style="font-size:16px;font-weight:800;margin-bottom:8px">Twitch für Flight Sim — aber besser</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.7">
+      Auf Twitch gehen Flugsim-Streams unter. Auf SkyFocus Live sind sie <strong>die Stars</strong>. Jeder VATSIM-Pilot kann seinen Cockpit-Stream direkt an seinen Live-Flug auf der Karte koppeln. User tippen auf den Flieger → sehen den Cockpit-Stream → geben Tips. Der Pilot fliegt seinen normalen VATSIM-Flug und verdient dabei Geld.
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <div style="font-size:24px;margin-bottom:8px">🎥</div>
+      <div style="font-weight:700;margin-bottom:4px">Stream Setup</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">
+        Pilot nutzt OBS Studio (gratis) → streamt an SkyFocus RTMP-Server → Stream wird automatisch mit VATSIM-Position verknüpft via CID. Kein kompliziertes Setup — ein Stream Key, fertig.
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:24px;margin-bottom:8px">📐</div>
+      <div style="font-weight:700;margin-bottom:4px">Multi-Perspektive</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">
+        Pilot kann bis zu 3 Kamera-Feeds streamen: Cockpit (Primary), Window Seat, External Cam. User wählt seine bevorzugte Perspektive. MSFS24 SimConnect für automatische Kamera-Umschaltung.
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:24px;margin-bottom:8px">💎</div>
+      <div style="font-weight:700;margin-bottom:4px">Monetarisierung</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">
+        <strong>Tips:</strong> CHF 1, 5, 10, 25, 50 — Animation on-stream<br>
+        <strong>Subs:</strong> CHF 2/mo — Badge, Priority, Notifications<br>
+        <strong>Featured:</strong> Bezahlte Promotion, Event-Flights<br>
+        <strong>Split:</strong> 80% Pilot / 20% Platform
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:24px;margin-bottom:8px">🏆</div>
+      <div style="font-weight:700;margin-bottom:4px">Pilot Ranks & Incentives</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">
+        <strong>Cadet:</strong> 0-10 Streams — Basic Badge<br>
+        <strong>First Officer:</strong> 10-50 Streams — Blue Badge, Featured eligible<br>
+        <strong>Captain:</strong> 50+ Streams — Gold Badge, Priority Promotion<br>
+        <strong>Commander:</strong> Top 10 Earners — Diamond Badge, Exclusive Events
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:24px;margin-bottom:8px">📊</div>
+      <div style="font-weight:700;margin-bottom:4px">Pilot Dashboard</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">
+        Web-basiertes Dashboard für Piloten:<br>
+        • Earnings Overview (Tag/Woche/Monat)<br>
+        • Viewer Analytics (Peak, Average, Retention)<br>
+        • Flight History mit Ratings<br>
+        • Payout Management (Stripe Connect)<br>
+        • Stream Health & Quality Metrics
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:24px;margin-bottom:8px">🛡️</div>
+      <div style="font-weight:700;margin-bottom:4px">Quality & Trust</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">
+        • VATSIM CID Verification (nur echte Piloten)<br>
+        • Stream Quality Minimum (720p, 30fps)<br>
+        • User-Ratings nach jedem Stream<br>
+        • Moderation & Report System<br>
+        • Auto-Detection: Stream stoppt wenn Pilot offline geht
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TECH STACK ═══ -->
+<div class="sec" id="tech">
+  <div class="sec-t"><span>⚙️</span> TECH STACK</div>
+
+  <div class="g2">
+    <div class="card">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--green);font-weight:600;margin-bottom:12px">FRONTEND</div>
+      <div class="g4" style="gap:8px">
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">React 18 + TypeScript</div><div style="font-size:10px;color:var(--text3)">UI Framework</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Vite</div><div style="font-size:10px;color:var(--text3)">Build Tool</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Tailwind CSS</div><div style="font-size:10px;color:var(--text3)">Styling</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Framer Motion</div><div style="font-size:10px;color:var(--text3)">Animations</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Mapbox GL JS</div><div style="font-size:10px;color:var(--text3)">Live Map</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Zustand</div><div style="font-size:10px;color:var(--text3)">State Mgmt</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Howler.js</div><div style="font-size:10px;color:var(--text3)">Audio</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">HLS.js</div><div style="font-size:10px;color:var(--text3)">Video Stream</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--purple);font-weight:600;margin-bottom:12px">BACKEND & INFRA</div>
+      <div class="g4" style="gap:8px">
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Node.js / Bun</div><div style="font-size:10px;color:var(--text3)">API Server</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">VATSIM API</div><div style="font-size:10px;color:var(--text3)">Flight Data (15s)</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Redis</div><div style="font-size:10px;color:var(--text3)">Cache (15s TTL)</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Stripe / Connect</div><div style="font-size:10px;color:var(--text3)">Payments & Payouts</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">RTMP Ingest</div><div style="font-size:10px;color:var(--text3)">Stream Server</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Cloudflare R2</div><div style="font-size:10px;color:var(--text3)">Media Storage</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Supabase</div><div style="font-size:10px;color:var(--text3)">Auth & DB</div></div>
+        <div style="padding:10px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)"><div style="font-weight:600;font-size:12px">Vercel</div><div style="font-size:10px;color:var(--text3)">Hosting & Edge</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ASSETS & CODE ═══ -->
+<div class="sec" id="assets">
+  <div class="sec-t"><span>📁</span> VORHANDENE ASSETS & CODE</div>
+
+  <div class="g2">
+    <div class="card">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--cyan);font-weight:600;margin-bottom:12px">SKYFOCUS LIVE — DOCS & MOCKUPS</div>
+      <div class="tree">
+        <span class="d">SkyFocus Live/</span>
+        <div class="tree-i">
+          <span class="d">docs/</span>
+          <div class="tree-i">
+            <span class="f">PRD.md</span> <span class="c">← 207 Zeilen, vollständig</span>
+          </div>
+          <span class="f">dashboard.html</span> <span class="c">← Altes Dashboard (ersetzen)</span><br>
+          <span class="d">mockups/</span>
+          <div class="tree-i">
+            <span class="f">onboarding.html</span> <span class="c">← 7 Screens, interaktiv, 870 Zeilen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--green);font-weight:600;margin-bottom:12px">REACT/TS APP (Projekt 2)</div>
+      <div class="tree">
+        <span class="d">Projekt 2/SIMB/SkyFocus/src/</span>
+        <div class="tree-i">
+          <span class="f">App.tsx</span> <span class="c">← 139 Zeilen, State Management</span><br>
+          <span class="f">main.tsx</span> · <span class="f">index.css</span><br>
+          <span class="d">types/</span><span class="f">index.ts</span> <span class="c">← Screen, Route, Stats Types</span><br>
+          <span class="d">data/</span><span class="f">routes.ts</span> <span class="c">← 6 Routen + Views + Sounds</span><br>
+          <span class="d">hooks/</span>
+          <div class="tree-i">
+            <span class="f">useTimer.ts</span> · <span class="f">useStats.ts</span> · <span class="f">useSound.ts</span>
+          </div>
+          <span class="d">utils/</span>
+          <div class="tree-i">
+            <span class="f">flight.ts</span> · <span class="f">storage.ts</span> <span class="c">← localStorage</span>
+          </div>
+          <span class="d">components/</span>
+          <div class="tree-i">
+            <span class="f">FlightMap</span> · <span class="f">FlightView</span> · <span class="f">HUD</span> · <span class="f">RouteCard</span> · <span class="f">SeatMap</span> · <span class="f">WorldMap</span>
+          </div>
+          <span class="d">screens/</span>
+          <div class="tree-i">
+            <span class="f">HomeScreen</span> · <span class="f">CheckInScreen</span> · <span class="f">FlightScreen</span> · <span class="f">CompleteScreen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--amber);font-weight:600;margin-bottom:12px">FOCUSFLIGHT REFERENZ</div>
+      <div class="tree">
+        <span class="d">PAXX/</span>
+        <div class="tree-i">
+          <span class="f">Focus Flight.MP4</span> <span class="c">← 219MB Demo-Video</span><br>
+          <span class="d">Focus Flight Frames/</span>
+          <div class="tree-i">
+            <span class="f">frame_0001.png ... frame_0046.png</span> <span class="c">← 46 UI-Screenshots</span>
+          </div>
+          <span class="f">paxcomfort-real-masterprompt.md</span> <span class="c">← FocusFlight UX-Analyse</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--pink);font-weight:600;margin-bottom:12px">LEGACY VERSIONEN</div>
+      <div class="tree">
+        <span class="d">Projekt 1/</span>
+        <div class="tree-i">
+          <span class="f">SkyFocus_v4.jsx</span> <span class="c">← 755 Zeilen, Standalone</span><br>
+          <span class="d">frontend/src/</span>
+          <div class="tree-i">
+            <span class="f">SkyFocus.jsx</span> <span class="c">← v8 Masterpiece, 1500 Zeilen</span><br>
+            <span class="f">audio-engine.js</span> <span class="c">← Web Audio, 304 Zeilen</span><br>
+            <span class="f">design-tokens.js</span> <span class="c">← Token System, 291 Zeilen</span>
+          </div>
+        </div>
+        <span class="d">Projekt 2/SIMB/</span>
+        <div class="tree-i">
+          <span class="f">SkyFocus_1.jsx</span> <span class="c">← v1 Prototyp (Archiv)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MONETARISIERUNG ═══ -->
+<div class="sec" id="monetization">
+  <div class="sec-t"><span>💰</span> MONETARISIERUNG — DETAIL</div>
+
+  <div class="card" style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>Revenue Stream</th><th>Preis</th><th>Target Users</th><th>Platform Cut</th><th>Projizierter MRR</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:600">Pro Monthly</td><td style="font-family:var(--mono)">CHF 3/mo</td><td>Fokus-User, Aviation-Fans</td><td style="color:var(--green);font-family:var(--mono)">100%</td><td style="font-family:var(--mono)">CHF 300 (100 Subs)</td></tr>
+        <tr><td style="font-weight:600">Pro Annual</td><td style="font-family:var(--mono)">CHF 15/yr</td><td>Committed Users</td><td style="color:var(--green);font-family:var(--mono)">100%</td><td style="font-family:var(--mono)">CHF 125 (100 Subs)</td></tr>
+        <tr><td style="font-weight:600">Pro Lifetime</td><td style="font-family:var(--mono)">CHF 25</td><td>Enthusiasten</td><td style="color:var(--green);font-family:var(--mono)">100%</td><td style="font-family:var(--mono)">One-time</td></tr>
+        <tr style="background:var(--purple-d)"><td style="font-weight:600;color:var(--purple)">Pilot Tips</td><td style="font-family:var(--mono)">CHF 1-50</td><td>Stream-Zuschauer</td><td style="color:var(--purple);font-family:var(--mono)">20%</td><td style="font-family:var(--mono)">CHF 200 (est.)</td></tr>
+        <tr style="background:var(--purple-d)"><td style="font-weight:600;color:var(--purple)">Pilot Subscriptions</td><td style="font-family:var(--mono)">CHF 2/mo</td><td>Fan-Piloten</td><td style="color:var(--purple);font-family:var(--mono)">20%</td><td style="font-family:var(--mono)">CHF 100 (est.)</td></tr>
+        <tr style="background:var(--amber-d)"><td style="font-weight:600;color:var(--amber)">Featured Flights</td><td style="font-family:var(--mono)">CHF 5-15</td><td>Event-Teilnehmer</td><td style="color:var(--amber);font-family:var(--mono)">100%</td><td style="font-family:var(--mono)">CHF 100 (est.)</td></tr>
+        <tr style="border-top:2px solid var(--green)"><td style="font-weight:800;font-size:14px" colspan="4">TOTAL PROJECTED MRR (6 Monate)</td><td style="font-weight:800;font-size:18px;color:var(--green);font-family:var(--mono)">~CHF 1K</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ OFFENE TODOs ═══ -->
+<div class="sec" id="roadmap">
+  <div class="sec-t"><span>📋</span> OFFENE TODOs — PRIORISIERT</div>
+
+  <div style="font-size:10px;letter-spacing:2px;color:var(--red);font-weight:600;margin-bottom:10px">JETZT (Phase 1-2 fertig machen)</div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+    <div class="rm"><div class="rm-n" style="background:var(--red-d);color:var(--red)">1</div><div style="flex:1"><div class="rm-title">Restliche Mockups erstellen (6/8 fehlen)</div><div class="rm-desc">Live Map, Flight Detail Sheet, Paywall, Pilot Stream View, Pilot Dashboard, Design System. Alle als interaktive HTML im SkyFocus-Style.</div><div class="rm-tags"><span class="rm-tag" style="background:var(--purple-d);color:var(--purple)">Design</span><span class="rm-tag" style="background:var(--amber-d);color:var(--amber)">~3-4 Tage</span></div></div></div>
+    <div class="rm"><div class="rm-n" style="background:var(--red-d);color:var(--red)">2</div><div style="flex:1"><div class="rm-title">VATSIM API Proxy bauen</div><div class="rm-desc">Node.js/Bun Server der VATSIM JSON Feed cached (15s TTL) und als API bereitstellt. CORS-Header. Minimal — kein DB nötig.</div><div class="rm-tags"><span class="rm-tag" style="background:var(--cyan-d);color:var(--cyan)">Backend</span><span class="rm-tag" style="background:var(--amber-d);color:var(--amber)">~1 Tag</span></div></div></div>
+    <div class="rm"><div class="rm-n" style="background:var(--red-d);color:var(--red)">3</div><div style="flex:1"><div class="rm-title">Mapbox GL Integration</div><div class="rm-desc">Dark Map Style, VATSIM-Flights als Layer, Icon Rotation, Clustering, Flight Selection mit Track-Line.</div><div class="rm-tags"><span class="rm-tag" style="background:var(--cyan-d);color:var(--cyan)">Frontend</span><span class="rm-tag" style="background:var(--amber-d);color:var(--amber)">~2 Tage</span></div></div></div>
+  </div>
+
+  <div style="font-size:10px;letter-spacing:2px;color:var(--amber);font-weight:600;margin-bottom:10px">BALD (Phase 3 MVP)</div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+    <div class="rm"><div class="rm-n" style="background:var(--amber-d);color:var(--amber)">4</div><div style="flex:1"><div class="rm-title">Onboarding in React implementieren</div><div class="rm-desc">7-Screen Flow mit Framer Motion Transitions, Aurora Glow, Globe, Flight Card Preview. Mockup als Vorlage.</div></div></div>
+    <div class="rm"><div class="rm-n" style="background:var(--amber-d);color:var(--amber)">5</div><div style="flex:1"><div class="rm-title">Flight Detail Bottom Sheet</div><div class="rm-desc">Callsign, Pilot, Aircraft, Route Progress, Live Data. Swipe-up Sheet mit Framer Motion.</div></div></div>
+    <div class="rm"><div class="rm-n" style="background:var(--amber-d);color:var(--amber)">6</div><div style="flex:1"><div class="rm-title">PWA Setup</div><div class="rm-desc">Manifest, Service Worker, Splash Screen, Add-to-Home-Screen Prompt.</div></div></div>
+    <div class="rm"><div class="rm-n" style="background:var(--amber-d);color:var(--amber)">7</div><div style="flex:1"><div class="rm-title">Ambient Sound System</div><div class="rm-desc">Howler.js Audio (cabin, engine, rain, ATC) integriert in Map-View. Auto-play bei Focus-Mode.</div></div></div>
+  </div>
+
+  <div style="font-size:10px;letter-spacing:2px;color:var(--purple);font-weight:600;margin-bottom:10px">DANACH (Phase 4-5)</div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+    <div class="rm"><div class="rm-n" style="background:var(--purple-d);color:var(--purple)">8</div><div style="flex:1"><div class="rm-title">Paywall & Stripe Integration</div><div class="rm-desc">6-Slide Feature Carousel, 3 Pricing Tiers, 7-Tage Trial, Discount Coupon System.</div><div class="rm-rev">→ Revenue Stream 1 aktiviert</div></div></div>
+    <div class="rm"><div class="rm-n" style="background:var(--purple-d);color:var(--purple)">9</div><div style="flex:1"><div class="rm-title">Pilot Registration & Streaming</div><div class="rm-desc">VATSIM CID Verification, OBS Stream Key, RTMP Ingest, HLS Player, Multi-Camera.</div><div class="rm-rev">→ Revenue Stream 2 aktiviert</div></div></div>
+    <div class="rm"><div class="rm-n" style="background:var(--purple-d);color:var(--purple)">10</div><div style="flex:1"><div class="rm-title">Tip & Subscription System</div><div class="rm-desc">Stripe Connect, Tip Animations, Pilot Subs, Monthly Payouts, 80/20 Split.</div><div class="rm-rev">→ Revenue Stream 2+3 aktiviert</div></div></div>
+    <div class="rm"><div class="rm-n" style="background:var(--purple-d);color:var(--purple)">11</div><div style="flex:1"><div class="rm-title">Featured Flights Marketplace</div><div class="rm-desc">Kuratierte Events, Group Flights, Pilot Spotlight. Booking & Payment.</div><div class="rm-rev">→ Revenue Stream 3 aktiviert</div></div></div>
+    <div class="rm"><div class="rm-n" style="background:var(--purple-d);color:var(--purple)">12</div><div style="flex:1"><div class="rm-title">Pilot Dashboard (Web App)</div><div class="rm-desc">Earnings, Analytics, Payout Management, Stream Health, Viewer Stats.</div></div></div>
+  </div>
+
+  <div style="font-size:10px;letter-spacing:2px;color:var(--text3);font-weight:600;margin-bottom:10px">ZUKUNFT</div>
+  <div style="display:flex;flex-direction:column;gap:8px;opacity:.7">
+    <div class="rm"><div class="rm-n" style="background:rgba(255,255,255,.04);color:var(--text3)">13</div><div style="flex:1"><div class="rm-title" style="color:var(--text2)">Native iOS / Android App</div></div></div>
+    <div class="rm"><div class="rm-n" style="background:rgba(255,255,255,.04);color:var(--text3)">14</div><div style="flex:1"><div class="rm-title" style="color:var(--text2)">IVAO & POSCON Support</div></div></div>
+    <div class="rm"><div class="rm-n" style="background:rgba(255,255,255,.04);color:var(--text3)">15</div><div style="flex:1"><div class="rm-title" style="color:var(--text2)">AI Copilot Commentary (Live-Erklärung was der Pilot macht)</div></div></div>
+    <div class="rm"><div class="rm-n" style="background:rgba(255,255,255,.04);color:var(--text3)">16</div><div style="flex:1"><div class="rm-title" style="color:var(--text2)">Social Features (Friends, Leaderboards, Group Watch)</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="ts">
+  SKYFOCUS LIVE · MASTER DASHBOARD · LAST UPDATED: 16.03.2026 · BUILT WITH CLAUDE CODE
+</div>
+
+</div>
+
+<script>
+document.querySelectorAll('.nav a').forEach(a=>{
+  a.addEventListener('click',()=>{document.querySelectorAll('.nav a').forEach(n=>n.classList.remove('act'));a.classList.add('act')})
+});
+const secs=document.querySelectorAll('.sec');
+const links=document.querySelectorAll('.nav a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('act'));const l=document.querySelector(`.nav a[href="#${e.target.id}"]`);if(l)l.classList.add('act')}})
+},{threshold:.15,rootMargin:'-80px 0px -60% 0px'});
+secs.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
